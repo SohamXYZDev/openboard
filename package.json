@@ -1,0 +1,37 @@
+{
+  "name": "openboard",
+  "version": "1.0.0",
+  "description": "Free, open-source multi-exam practice platform featuring official test-maker question banks, integrated Desmos graphing calculator, scratchpad rough work, and step-by-step explanations. Live: Digital SAT; Planned: ACT, AP, GRE.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SohamXYZDev/openboard.git"
+  },
+  "keywords": [
+    "openboard",
+    "exam-prep",
+    "open-source",
+    "sat",
+    "digital-sat",
+    "act",
+    "ap",
+    "gre",
+    "collegeboard",
+    "question-bank",
+    "desmos",
+    "mathjax",
+    "edtech",
+    "bluebook"
+  ],
+  "author": "Soham Mitra (SohamXYZ)",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "puppeteer-core": "^24.43.1"
+  }
+}

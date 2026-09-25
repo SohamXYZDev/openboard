@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenBoard — Free Open-Access Exam Practice Platform</title>
+    <meta name="description" content="OpenBoard is a free, open-access exam practice platform featuring official test-maker items, interactive Desmos graphing, drawing scratchpads, and instant explanations.">
+    <meta name="author" content="Soham Mitra">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://sohamxyz.com/openboard">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sohamxyz.com/openboard">
+    <meta property="og:site_name" content="OpenBoard">
+    <meta property="og:title" content="OpenBoard — Free Open-Access Exam Practice Platform">
+    <meta property="og:description" content="Practice with official examination items, real-time grading, built-in Desmos graphing, and rough scratchpads. Zero paywalls.">
+    <meta property="og:image" content="https://sohamxyz.com/assets/sohamxyz.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@sohamxyz">
+    <meta name="twitter:title" content="OpenBoard — Free Open-Access Exam Practice Platform">
+    <meta name="twitter:description" content="Practice with official examination items, real-time grading, built-in Desmos graphing, and rough scratchpads. Zero paywalls.">
+    <meta name="keywords" content="OpenBoard, exam practice, SAT question bank, Digital SAT, ACT prep, AP exams, GRE prep, free test prep, College Board, official practice questions">
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://sohamxyz.com/openboard#website",
+          "url": "https://sohamxyz.com/openboard",
+          "name": "OpenBoard",
+          "description": "Free, open-access exam practice platform featuring official test-maker items, interactive Desmos graphing, drawing scratchpads, and instant explanations.",
+          "publisher": {
+            "@type": "Person",
+            "name": "Soham Mitra",
+            "url": "https://sohamxyz.com"
+          }
+        },
+        {
+          "@type": "CollectionPage",
+          "@id": "https://sohamxyz.com/openboard#webpage",
+          "url": "https://sohamxyz.com/openboard",
+          "name": "OpenBoard — Free Open-Access Exam Practice Platform",
+          "isPartOf": {
+            "@id": "https://sohamxyz.com/openboard#website"
+          },
+          "description": "OpenBoard provides distraction-free practice sessions equipped with official items, instant scoring, integrated Desmos graphing, and rough scratchpads.",
+          "about": [
+            {
+              "@type": "Thing",
+              "name": "Digital SAT"
+            },
+            {
+              "@type": "Thing",
+              "name": "Standardized Testing"
+            },
+            {
+              "@type": "Thing",
+              "name": "College Board Question Bank"
+            }
+          ],
+          "hasPart": [
+            {
+              "@type": "WebApplication",
+              "name": "OpenBoard Digital SAT Question Bank",
+              "url": "https://sohamxyz.com/openboard/sat",
+              "applicationCategory": "EducationalApplication",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://sohamxyz.com/openboard#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://sohamxyz.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "OpenBoard",
+              "item": "https://sohamxyz.com/openboard"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-2: #0f0f1a;
+            --bg-3: #141424;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-hover: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text: #f0f0f5;
+            --text-muted: #9b9bb5;
+            --text-dim: #6b6b85;
+            --accent: #7c6efc;
+            --accent-light: #a78bfa;
+            --accent-glow: rgba(124, 110, 252, 0.25);
+            --accent-subtle: rgba(124, 110, 252, 0.1);
+            --green: #22c55e;
+            --green-glow: rgba(34, 197, 94, 0.25);
+            --green-subtle: rgba(34, 197, 94, 0.12);
+            --gold: #f59e0b;
+            --gold-subtle: rgba(245, 158, 11, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-pill: 9999px;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 110, 252, 0.18), transparent 70%),
+                radial-gradient(circle at 10% 90%, rgba(34, 197, 94, 0.04), transparent 50%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 36px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7c6efc 0%, #4f46e5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            background: var(--surface-hover);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-link {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        .nav-author-badge {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            background: var(--accent-subtle);
+            border: 1px solid rgba(124, 110, 252, 0.25);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .nav-author-badge:hover {
+            background: rgba(124, 110, 252, 0.2);
+            border-color: rgba(124, 110, 252, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ── Hero Section ── */
+        .hero {
+            padding: 72px 24px 48px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-pill);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            margin-bottom: 24px;
+            letter-spacing: 0.02em;
+        }
+
+        .pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .hero-title {
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-weight: 800;
+            line-height: 1.12;
+            letter-spacing: -0.035em;
+            margin-bottom: 20px;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #7c6efc 20%, #c084fc 60%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.12rem;
+            color: var(--text-muted);
+            max-width: 680px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        /* ── Exam Selector Grid ── */
+        .selector-section {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px 64px;
+            flex: 1;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            background: var(--surface-hover);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            color: var(--text);
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+        }
+
+        .tab-btn.active {
+            border-color: var(--accent);
+            color: var(--accent-light);
+            background: var(--accent-subtle);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* ── Exam Card ── */
+        .exam-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .exam-card.active-card {
+            border-color: rgba(124, 110, 252, 0.4);
+            background: linear-gradient(180deg, rgba(124, 110, 252, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .exam-card.active-card:hover {
+            border-color: rgba(124, 110, 252, 0.7);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(124, 110, 252, 0.15);
+        }
+
+        .exam-card.disabled-card {
+            opacity: 0.68;
+            filter: grayscale(0.2);
+        }
+
+        .exam-card.disabled-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .card-top {
+            margin-bottom: 20px;
+        }
+
+        .card-header-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-admin {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+        }
+
+        .card-status-badge {
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-live {
+            background: var(--green-subtle);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-coming {
+            background: var(--gold-subtle);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-planned {
+            background: var(--surface-hover);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-bottom: 20px;
+        }
+
+        .card-features {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .feature-item {
+            font-size: 0.85rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .card-stats-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            font-family: var(--mono);
+            color: var(--text);
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-launch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #7c6efc 0%, #6366f1 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.96rem;
+            border-radius: var(--radius-md);
+            box-shadow: 0 6px 20px var(--accent-glow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-launch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(124, 110, 252, 0.45);
+            background: linear-gradient(135deg, #8b7efc 0%, #7073f8 100%);
+        }
+
+        .btn-disabled {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 20px;
+            background: var(--surface);
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            cursor: not-allowed;
+        }
+
+        /* ── Platform Highlights ── */
+        .highlights-section {
+            background: var(--bg-2);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 60px 24px;
+        }
+
+        .highlights-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .highlight-item {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .highlight-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .highlight-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .highlight-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ── Footer ── */
+        .site-footer {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+            background: var(--bg);
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-light);
+        }
+
+        .footer-disclaimer {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            max-width: 720px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .site-header {
+                padding: 14px 20px;
+            }
+            .hero {
+                padding: 48px 16px 36px;
+            }
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .exam-card {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-brand">
+            <div class="brand-icon">⚡</div>
+            <span class="brand-text">OpenBoard</span>
+            <span class="brand-tag">Hub</span>
+        </div>
+        <nav class="header-nav">
+            <a href="https://sohamxyz.com" target="_blank" class="nav-author-badge">
+                <span>Built independently by Soham Mitra</span>
+                <span>↗</span>
+            </a>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-pill">
+            <span class="pill-dot"></span>
+            <span>OPEN EXAMINATION DIRECTORY</span>
+        </div>
+        <h1 class="hero-title">
+            Select Your Exam.<br/>
+            <span class="gradient-text">Zero Paywalls. Real Questions.</span>
+        </h1>
+        <p class="hero-subtitle">
+            OpenBoard provides distraction-free practice sessions equipped with official items, instant scoring, integrated Desmos graphing, and rough scratchpads.
+        </p>
+    </section>
+
+    <!-- Selector Section -->
+    <main class="selector-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span>Examination Boards</span>
+                <span class="section-badge">1 Active • 3 In Progress</span>
+            </h2>
+            <div class="filter-tabs">
+                <button class="tab-btn active">All Boards</button>
+                <button class="tab-btn" onclick="filterCards('college')">College Entrance</button>
+                <button class="tab-btn" onclick="filterCards('ap')">Advanced Placement</button>
+                <button class="tab-btn" onclick="filterCards('grad')">Graduate</button>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Digital SAT (ACTIVE) -->
+            <div class="exam-card active-card" data-category="college">
+                <div class="card-top">
+                    <div class="card-header-meta">
+                        <span class="card-admin">College Board®</span>
+                        <span class="card-status-badge badge-live">
+                            <span class="pill-dot"></span> Active Board
+                        </span>
+                    </div>
+                    <h3 class="card-title">Digital SAT®</h3>
+                    <p class="card-desc">
+                        Official Digital SAT question bank featuring Reading & Writing and Math modules with step-by-step reasoning, explanations, and skill breakdowns.
+                    </p>
+
+                    <div class="card-stats-row">
+                        <div class="stat-box">
+                            <span class="stat-val">3,770+</span>
+                            <span class="stat-label">Official Items</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">100%</span>
+                            <span class="stat-label">Free Access</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">Desmos</span>
+                            <span class="stat-label">Integrated</span>
+                        </div>
+                    </div>
+
+                    <div class="card-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">📐</span>
+                            <span>Official Desmos Graphing Calculator built-in</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✏️</span>
+                            <span>Freehand Drawing Scratchpad & Rough Pad</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span>Domain & Skill filtering (Algebra, Geometry, Craft, etc.)</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">⚡</span>
+                            <span>Instant grading with verified solution rationale</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/openboard/sat" class="btn-launch">
+                    <span>Launch SAT Practice</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <!-- ACT (COMING SOON) -->
+            <div class="exam-card disabled-card" data-category="college">
+                <div class="card-top">
+                    <div class="card-header-meta">
+                        <span class="card-admin">ACT, Inc.</span>
+                        <span class="card-status-badge badge-coming">
+                            <span>⏳</span> In Development
+                        </span>
+                    </div>
+                    <h3 class="card-title">ACT®</h3>
+                    <p class="card-desc">
+                        Full-length question bank covering English, Mathematics, Reading, and Science sections with timed test pacing engine.
+                    </p>
+
+                    <div class="card-stats-row">
+                        <div class="stat-box">
+                            <span class="stat-val">4</span>
+                            <span class="stat-label">Core Sections</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">Scientific</span>
+                            <span class="stat-label">Calculator</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">Science</span>
+                            <span class="stat-label">Passages</span>
+                        </div>
+                    </div>
+
+                    <div class="card-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">⏱️</span>
+                            <span>Science and Technical Data Interpretation</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🧮</span>
+                            <span>Integrated Scientific & Formula Tools</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span>Section pacing & stamina trackers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-disabled">
+                    <span>Coming Soon</span>
+                </div>
+            </div>
+
+            <!-- AP Calculus (COMING SOON) -->
+            <div class="exam-card disabled-card" data-category="ap">
+                <div class="card-top">
+                    <div class="card-header-meta">
+                        <span class="card-admin">College Board®</span>
+                        <span class="card-status-badge badge-coming">
+                            <span>⏳</span> In Development
+                        </span>
+                    </div>
+                    <h3 class="card-title">AP® Calculus</h3>
+                    <p class="card-desc">
+                        Calculus AB & BC curriculum practice items covering Limits, Derivatives, Integrals, and Series with calculator-active sections.
+                    </p>
+
+                    <div class="card-stats-row">
+                        <div class="stat-box">
+                            <span class="stat-val">AB / BC</span>
+                            <span class="stat-label">Units</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">FRQ</span>
+                            <span class="stat-label">Prompts</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">LaTeX</span>
+                            <span class="stat-label">MathJax</span>
+                        </div>
+                    </div>
+
+                    <div class="card-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">∫</span>
+                            <span>Comprehensive Unit-by-Unit practice</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📐</span>
+                            <span>Graphing Calculator active items</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📝</span>
+                            <span>Free-Response Question scoring guidelines</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-disabled">
+                    <span>Coming Soon</span>
+                </div>
+            </div>
+
+            <!-- GRE (PLANNED) -->
+            <div class="exam-card disabled-card" data-category="grad">
+                <div class="card-top">
+                    <div class="card-header-meta">
+                        <span class="card-admin">ETS®</span>
+                        <span class="card-status-badge badge-planned">
+                            <span>📋</span> Planned
+                        </span>
+                    </div>
+                    <h3 class="card-title">GRE® General</h3>
+                    <p class="card-desc">
+                        Quantitative and Verbal reasoning practice banks with high-frequency vocabulary drills and quantitative comparison problem sets.
+                    </p>
+
+                    <div class="card-stats-row">
+                        <div class="stat-box">
+                            <span class="stat-val">Quant</span>
+                            <span class="stat-label">Reasoning</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">Verbal</span>
+                            <span class="stat-label">Vocabulary</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">On-Screen</span>
+                            <span class="stat-label">Calc</span>
+                        </div>
+                    </div>
+
+                    <div class="card-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span>Quantitative Comparison & Data Analysis</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📖</span>
+                            <span>Text Completion & Sentence Equivalence</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-disabled">
+                    <span>Planned</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Platform Highlights -->
+    <section class="highlights-section">
+        <div class="highlights-container">
+            <div class="highlight-item">
+                <div class="highlight-icon">🔓</div>
+                <h3 class="highlight-title">100% Free, Zero Friction</h3>
+                <p class="highlight-desc">No paywalls, no forced account signups, and no advertising clutter. Just pure, uninterrupted practice whenever you need it.</p>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">📐</div>
+                <h3 class="highlight-title">Native Digital Tools</h3>
+                <p class="highlight-desc">Equipped with the official Desmos Graphing Calculator engine and a freehand scratchpad so you practice in real test-day conditions.</p>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">🎯</div>
+                <h3 class="highlight-title">Authentic Item Quality</h3>
+                <p class="highlight-desc">Direct parity with official test formats, complete with full MathJax LaTeX mathematical formatting and verified solution steps.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://sohamxyz.com" target="_blank">Built independently by Soham Mitra</a>
+                <span>•</span>
+                <a href="https://github.com/SohamXYZDev/openboard" target="_blank">GitHub (Open Source)</a>
+                <span>•</span>
+                <a href="/openboard/sat">Launch Digital SAT</a>
+                <span>•</span>
+                <a href="/openboard/dmca">DMCA Policy</a>
+            </div>
+            <p class="footer-disclaimer">
+                <strong>Non-Commercial &amp; Trademark Disclaimer:</strong> OpenBoard is a free, non-commercial, open-source educational project developed independently by <strong>Soham Mitra</strong> for non-profit student study. Digital SAT® and AP® are registered trademarks of the College Board, which was not involved in the production of, and does not endorse, sponsor, or review this platform. ACT® is a registered trademark of ACT, Inc. GRE® is a registered trademark of ETS. All official question materials and rationales remain the intellectual property and copyright of their respective trademark holders. The open-source repository contains only web application code and does not store or distribute copyrighted test question databases. For copyright takedown notices under 17 U.S.C. § 512, review our <a href="/openboard/dmca" style="color: var(--accent-light); text-decoration: underline;">DMCA Policy</a> or contact <a href="mailto:soham@sohamxyz.com?subject=DMCA%20Notice%20-%20OpenBoard" style="color: var(--accent-light); text-decoration: underline;">soham@sohamxyz.com</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function filterCards(category) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const cards = document.querySelectorAll('.exam-card');
+            cards.forEach(card => {
+                if (!category || category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        document.querySelector('.tab-btn').addEventListener('click', () => filterCards('all'));
+    </script>
+</body>
+</html>

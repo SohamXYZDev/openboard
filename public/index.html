@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OpenBoard — Free Official Digital SAT Question Bank (3,770+ Questions)</title>
+    <meta name="description" content="OpenBoard is a free, open-access platform for official Digital SAT prep. Practice 3,770+ official College Board SAT Reading & Writing and Math questions with official Desmos graphing calculator, scratchpad rough pad, and explanations.">
+    <meta name="keywords" content="OpenBoard, SAT question bank, Digital SAT practice, official SAT questions, College Board question bank, free SAT prep, SAT math practice, SAT reading and writing, PSAT practice, Bluebook questions, SAT quizzer">
+    <meta name="author" content="Soham">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://sohamxyz.com/openboard/sat">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sohamxyz.com/openboard/sat">
+    <meta property="og:title" content="OpenBoard — Free Digital SAT Practice Question Bank">
+    <meta property="og:description" content="Practice 3,770+ official College Board SAT questions with instant grading, official Desmos Graphing Calculator, and explanations.">
+    <meta property="og:site_name" content="OpenBoard">
+    <meta property="og:image" content="https://sohamxyz.com/assets/sohamxyz.png">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://sohamxyz.com/openboard/sat">
+    <meta name="twitter:title" content="OpenBoard — Free Digital SAT Practice Question Bank">
+    <meta name="twitter:description" content="Practice 3,770+ official College Board SAT questions with instant grading, official Desmos Graphing Calculator, and explanations.">
+    <meta name="twitter:image" content="https://sohamxyz.com/assets/sohamxyz.png">
+
+    <!-- Schema.org JSON-LD Structured Data for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://sohamxyz.com/openboard/sat#webapp",
+          "name": "OpenBoard - SAT",
+          "url": "https://sohamxyz.com/openboard/sat",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "All",
+          "description": "Free web application providing endless practice on 3,770+ official College Board Digital SAT questions across Math and Reading & Writing with step-by-step explanations, official Desmos graphing calculator, and rough pad.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "creator": {
+            "@type": "Person",
+            "name": "Soham Mitra",
+            "url": "https://sohamxyz.com"
+          }
+        },
+        {
+          "@type": "LearningResource",
+          "@id": "https://sohamxyz.com/openboard/sat#resource",
+          "name": "OpenBoard SAT Practice Question Bank",
+          "description": "Interactive question bank containing official SAT Reading & Writing and Math questions with rationales, scoring, and spoiler protection.",
+          "learningResourceType": "Quiz",
+          "educationalLevel": "High School",
+          "assesses": "Digital SAT Readiness, High School Mathematics, Reading Comprehension, Standard English Conventions"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://sohamxyz.com/openboard/sat#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://sohamxyz.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "OpenBoard",
+              "item": "https://sohamxyz.com/openboard"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Digital SAT",
+              "item": "https://sohamxyz.com/openboard/sat"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KJ68XH38X6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-KJ68XH38X6');
+    </script>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="style.css?v=8.1">
+    <!-- MathJax for rendering math formulas and MathML -->
+    <script>
+        window.MathJax = {
+            loader: { load: ['input/mml', 'output/chtml'] },
+            chtml: { matchFontHeight: true }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="app" class="app-layout">
+        <!-- Desktop Header (Hidden on mobile) -->
+        <header class="app-header desktop-only">
+            <div class="header-left">
+                <a href="/openboard" class="brand" title="OpenBoard Exam Directory" style="text-decoration: none; color: inherit;">
+                    <div class="brand-icon">🎯</div>
+                    <div class="brand-text">
+                        <h1 class="brand-name" style="margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;">OpenBoard</h1>
+                    </div>
+                </a>
+
+                <div class="subject-pills" id="desktop-subject-pills">
+                    <button class="pill active" data-subject="all">All</button>
+                    <button class="pill" data-subject="rw">Reading & Writing</button>
+                    <button class="pill" data-subject="math">Math</button>
+                </div>
+            </div>
+
+            <div class="header-stats">
+                <div class="stat-box streak-box" title="Current streak">
+                    <span class="stat-icon">🔥</span>
+                    <span class="stat-val" id="streak-counter">0</span>
+                    <span class="stat-lbl">Streak</span>
+                </div>
+                <div class="stat-box" title="Accuracy percentage">
+                    <span class="stat-icon">🎯</span>
+                    <span class="stat-val" id="accuracy-counter">0%</span>
+                    <span class="stat-lbl" id="score-counter">0/0</span>
+                </div>
+                <div class="stat-box timer-box" title="Session time">
+                    <span class="stat-icon">⏱️</span>
+                    <span class="stat-val" id="session-timer">00:00</span>
+                    <span class="stat-lbl">Time</span>
+                </div>
+                <button class="icon-btn" id="btn-history" title="Practice History">
+                    <span>🕒</span>
+                    <span class="badge" id="history-count">0</span>
+                </button>
+                <button class="icon-btn" id="btn-bookmarks" title="Saved Questions">
+                    <span>🔖</span>
+                    <span class="badge" id="bookmarks-count">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Desktop Filter Bar (Hidden on mobile) -->
+        <div class="filter-bar desktop-only">
+            <div class="filter-group">
+                <label for="filter-difficulty">Difficulty:</label>
+                <select id="filter-difficulty">
+                    <option value="all">All Difficulties</option>
+                    <option value="E">🟢 Easy</option>
+                    <option value="M">🟡 Medium</option>
+                    <option value="H">🔴 Hard</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-format">Format:</label>
+                <select id="filter-format">
+                    <option value="all">All Formats</option>
+                    <option value="spr">✏️ No Options (Free Response)</option>
+                    <option value="mcq">🔘 Multiple Choice</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter-domain">Domain:</label>
+                <select id="filter-domain">
+                    <option value="all">All Domains</option>
+                </select>
+            </div>
+
+            <div class="filter-group spoiler-toggle">
+                <label class="switch-label">
+                    <input type="checkbox" id="filter-exclude-active" checked>
+                    <span class="slider"></span>
+                    <span class="switch-text" title="Excludes questions that appear on Bluebook practice tests #1-6">
+                        🛡️ Exclude Bluebook Tests
+                    </span>
+                </label>
+            </div>
+
+            <div class="filter-group stats-summary" id="matching-count-tag">
+                <span class="dot"></span>
+                <span id="matching-count-text">Loading catalog...</span>
+            </div>
+        </div>
+
+        <!-- Mobile Top Bar (Ultra-compact, only shown on mobile) -->
+        <div class="mobile-top-bar mobile-only">
+            <div class="mobile-stats">
+                <span class="mobile-chip streak-chip">🔥 <strong id="mobile-streak">0</strong></span>
+                <span class="mobile-chip accuracy-chip">🎯 <strong id="mobile-accuracy">0%</strong></span>
+            </div>
+            <div class="mobile-subject-pill" id="mobile-subject-badge">All SAT</div>
+            <div class="mobile-actions">
+                <button class="mobile-icon-btn hidden" id="btn-mobile-calc" aria-label="Desmos Calculator" title="Open Desmos Graphing Calculator">
+                    <span>🧮</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-pad" aria-label="Rough Pad" title="Open Scratchpad / Rough Pad">
+                    <span>📝</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-filters" aria-label="Filters">
+                    <span>⚙️</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-history" aria-label="History" title="Practice History">
+                    <span>🕒</span>
+                    <span class="badge" id="mobile-history-badge">0</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-bookmarks" aria-label="Bookmarks">
+                    <span>🔖</span>
+                    <span class="badge" id="mobile-bookmarks-badge">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Question Container -->
+        <main class="quiz-container" id="quiz-container">
+            <!-- Loading State -->
+            <div id="loading-state" class="state-view">
+                <div class="spinner"></div>
+                <p>Drawing next official question...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="state-view hidden">
+                <div class="error-icon">⚠️</div>
+                <h3 id="error-title">No questions found</h3>
+                <p id="error-message">Try adjusting your difficulty or domain filters.</p>
+                <button class="btn btn-primary" id="btn-retry">Retry Filters</button>
+            </div>
+
+            <!-- Question Presentation View -->
+            <div id="question-view" class="question-view hidden">
+                <!-- Meta Tag Ribbon -->
+                <div class="question-meta-bar">
+                    <div class="meta-tags">
+                        <span class="badge badge-subject" id="meta-subject">Subject</span>
+                        <span class="badge badge-format hidden" id="meta-format">✏️ Free Response</span>
+                        <span class="badge badge-domain" id="meta-domain">Domain</span>
+                        <span class="badge badge-skill" id="meta-skill">Skill</span>
+                        <span class="badge badge-difficulty" id="meta-difficulty">Difficulty</span>
+                        <span class="badge badge-practice hidden" id="meta-practice-tag">Practice Test</span>
+                    </div>
+
+                    <div class="meta-actions desktop-only">
+                        <button class="icon-btn-small btn-calc-toggle hidden" id="btn-toggle-calc" title="Open Desmos Graphing Calculator">🧮 Calculator</button>
+                        <button class="icon-btn-small btn-pad-toggle" id="btn-toggle-pad" title="Open Scratchpad / Rough Pad">📝 Rough Pad</button>
+                        <span class="question-id" id="meta-qid" title="Official College Board Question ID">ID: ----</span>
+                        <button class="icon-btn-small" id="btn-copy-id" title="Copy Question ID">📋</button>
+                        <button class="icon-btn-small" id="btn-toggle-bookmark" title="Save this question">🔖</button>
+                    </div>
+                </div>
+
+                <!-- Interactive Question Body -->
+                <div class="question-grid" id="question-grid">
+                    <!-- Left Column / Passage: Stimulus -->
+                    <section class="stimulus-panel" id="stimulus-panel">
+                        <div class="panel-header">
+                            <span class="panel-title">Passage / Reference</span>
+                        </div>
+                        <div class="stimulus-content" id="stimulus-content">
+                            <!-- Stimulus HTML injected here -->
+                        </div>
+                    </section>
+
+                    <!-- Right Column: Question Stem & Options -->
+                    <section class="prompt-panel" id="prompt-panel">
+                        <div class="stem-content" id="stem-content">
+                            <!-- Stem HTML injected here -->
+                        </div>
+
+                        <!-- MCQ Answer Options Container -->
+                        <div class="options-container" id="options-container">
+                            <!-- Rendered Options A, B, C, D -->
+                        </div>
+
+                        <!-- Math SPR Input Container -->
+                        <div class="spr-container hidden" id="spr-container">
+                            <div class="spr-header-row">
+                                <label for="spr-input" class="spr-label">Enter numeric answer or fraction (e.g. 3/4 or 0.75):</label>
+                                <div class="spr-tools">
+                                    <button type="button" class="spr-tool-btn" id="btn-spr-open-calc" title="Open Desmos Graphing Calculator">
+                                        <span>🧮 Calculator</span>
+                                    </button>
+                                    <button type="button" class="spr-tool-btn" id="btn-spr-open-pad" title="Open Scratchpad / Rough Pad">
+                                        <span>📝 Rough Pad</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="spr-input-group">
+                                <input type="text" id="spr-input" placeholder="e.g. 42 or 3/4 or 0.75" autocomplete="off" spellcheck="false">
+                                <button class="btn btn-primary desktop-only" id="btn-submit-spr">Submit</button>
+                            </div>
+                            <div class="spr-feedback hidden" id="spr-feedback"></div>
+                        </div>
+
+                        <!-- Official College Board Rationale / Explanation -->
+                        <div class="rationale-card hidden" id="rationale-card">
+                            <div class="rationale-header" id="rationale-toggle" title="Click to collapse/expand explanation">
+                                <div class="rationale-title">
+                                    <span class="rationale-icon">💡</span>
+                                    <span>Official College Board Explanation</span>
+                                    <span class="rationale-chevron" id="rationale-chevron">▼</span>
+                                </div>
+                                <span class="rationale-badge" id="rationale-result-badge">Result</span>
+                            </div>
+                            <div class="rationale-body" id="rationale-content">
+                                <!-- Rationale HTML injected here -->
+                            </div>
+                            <div class="rationale-disclaimer" style="padding: 10px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); background: rgba(0, 0, 0, 0.18);">
+                                SAT® is a registered trademark of the College Board, which was not involved in the production of, and does not endorse, this resource.
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Desmos College Board Graphing Calculator Panel -->
+                    <aside class="desmos-panel hidden" id="desmos-panel">
+                        <div class="desmos-header">
+                            <div class="desmos-title">
+                                <span class="desmos-icon">🧮</span>
+                                <span>Desmos Calculator</span>
+                                <span class="desmos-subbadge">College Board Version</span>
+                            </div>
+                            <div class="panel-header-actions">
+                                <button type="button" class="panel-switch-btn" id="btn-calc-switch-pad" title="Switch to Rough Pad">📝 Rough Pad</button>
+                                <button type="button" class="panel-close-btn" id="btn-close-calc" title="Close Calculator">✕</button>
+                            </div>
+                        </div>
+                        <div class="desmos-frame-wrap">
+                            <iframe id="desmos-iframe" src="" title="Desmos Graphing Calculator (College Board Version)" allow="clipboard-write"></iframe>
+                        </div>
+                    </aside>
+
+                    <!-- Rough Pad Panel (Drawing & Scratch Typing) -->
+                    <aside class="roughpad-panel hidden" id="roughpad-panel">
+                        <div class="roughpad-header">
+                            <div class="roughpad-title">
+                                <span class="roughpad-icon">📝</span>
+                                <span>Rough Pad</span>
+                            </div>
+                            <div class="roughpad-mode-pills">
+                                <button type="button" class="mode-pill active" id="btn-pad-mode-draw" title="Drawing Canvas">✏️ Draw</button>
+                                <button type="button" class="mode-pill" id="btn-pad-mode-type" title="Scratch Notes">⌨️ Type</button>
+                            </div>
+                            <div class="panel-header-actions">
+                                <button type="button" class="panel-switch-btn hidden" id="btn-pad-switch-calc" title="Switch to Desmos Calculator">🧮 Calculator</button>
+                                <button type="button" class="panel-close-btn" id="btn-close-pad" title="Close Rough Pad">✕</button>
+                            </div>
+                        </div>
+
+                        <!-- Drawing Toolbar -->
+                        <div class="roughpad-toolbar" id="roughpad-draw-toolbar">
+                            <div class="tool-group">
+                                <button type="button" class="tool-btn active" id="tool-pen" title="Pen (Fine Line)">✏️</button>
+                                <button type="button" class="tool-btn" id="tool-highlighter" title="Highlighter">🖍️</button>
+                                <button type="button" class="tool-btn" id="tool-eraser" title="Eraser">🧹</button>
+                            </div>
+                            <div class="color-palette">
+                                <button type="button" class="color-dot active" data-color="#f0f0f5" style="background: #f0f0f5;" title="White"></button>
+                                <button type="button" class="color-dot" data-color="#ffd166" style="background: #ffd166;" title="Yellow"></button>
+                                <button type="button" class="color-dot" data-color="#64d2ff" style="background: #64d2ff;" title="Cyan"></button>
+                                <button type="button" class="color-dot" data-color="#ff6b8b" style="background: #ff6b8b;" title="Pink"></button>
+                            </div>
+                            <div class="tool-group-right">
+                                <button type="button" class="tool-btn" id="tool-undo" title="Undo Last Stroke">↩️</button>
+                                <button type="button" class="tool-btn-text" id="tool-clear-draw" title="Clear Canvas">Clear</button>
+                            </div>
+                        </div>
+
+                        <!-- Typing Toolbar -->
+                        <div class="roughpad-toolbar hidden" id="roughpad-type-toolbar">
+                            <span class="type-toolbar-hint">Scratch notes & formulas:</span>
+                            <button type="button" class="tool-btn-text" id="tool-clear-type" title="Clear text">Clear</button>
+                        </div>
+
+                        <!-- Drawing Canvas View -->
+                        <div class="roughpad-canvas-wrap" id="roughpad-canvas-wrap">
+                            <canvas id="rough-canvas"></canvas>
+                        </div>
+
+                        <!-- Textarea View -->
+                        <div class="roughpad-type-wrap hidden" id="roughpad-type-wrap">
+                            <textarea id="rough-textarea" placeholder="Jot down scratch work, formulas, steps, or notes here...&#10;&#10;Example:&#10;2x + 5 = 21&#10;2x = 16&#10;x = 8" spellcheck="false"></textarea>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- Desktop Footer (Hidden on mobile) -->
+                <footer class="quiz-footer desktop-only">
+                    <div class="footer-left">
+                        <span class="shortcut-tip"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> select &bull; <kbd>Enter</kbd> submit &bull; <kbd>S</kbd> skip &bull; <kbd>H</kbd> history</span>
+                        <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
+                        <span style="color: var(--text-3); font-size: 11px;">Free &amp; Open Source • Non-commercial educational study tool by <a href="https://sohamxyz.com" target="_blank" style="color: var(--text-2); text-decoration: none;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-2)'">Soham Mitra</a></span>
+                        <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
+                        <button type="button" id="btn-open-disclaimer" style="background: none; border: none; color: var(--text-3); font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-3)'" title="View Legal & Trademark Disclaimer">Disclaimer</button>
+                        <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
+                        <a href="/openboard/dmca" target="_blank" style="color: var(--text-3); font-size: 11px; text-decoration: underline; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-3)'" title="View DMCA & Copyright Policy">DMCA Policy</a>
+                    </div>
+                    <div class="footer-right">
+                        <button class="btn btn-secondary hidden" id="btn-jump-rationale" title="Jump down to explanation">💡 Explanation</button>
+                        <button class="btn btn-secondary" id="btn-skip" title="Skip to another question (S)">Skip</button>
+                        <button class="btn btn-primary" id="btn-action">Check Answer</button>
+                    </div>
+                </footer>
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Taskbar (Fixed at bottom on mobile) -->
+        <nav class="mobile-taskbar mobile-only">
+            <button class="mobile-taskbar-btn" id="btn-mobile-skip" aria-label="Skip question">
+                <span class="btn-icon">⏭️</span>
+                <span class="btn-label">Skip</span>
+            </button>
+            <button class="btn btn-primary btn-mobile-action" id="btn-mobile-action" disabled>
+                Check Answer
+            </button>
+            <button class="mobile-taskbar-btn" id="btn-mobile-bookmark" aria-label="Bookmark question">
+                <span class="btn-icon">🔖</span>
+                <span class="btn-label">Save</span>
+            </button>
+        </nav>
+
+        <!-- Mobile Filter Sheet / Drawer Modal -->
+        <div class="drawer-backdrop hidden" id="mobile-filter-drawer">
+            <div class="drawer-sheet">
+                <div class="drawer-pull-bar"></div>
+                <div class="drawer-header">
+                    <h3>⚙️ Practice Filters</h3>
+                    <button class="icon-btn-small" id="btn-close-drawer">✕</button>
+                </div>
+                <div class="drawer-body">
+                    <div class="drawer-field">
+                        <label class="drawer-label">Subject</label>
+                        <div class="subject-pills mobile-pills" id="mobile-subject-pills">
+                            <button class="pill active" data-subject="all">All</button>
+                            <button class="pill" data-subject="rw">Reading & Writing</button>
+                            <button class="pill" data-subject="math">Math</button>
+                        </div>
+                    </div>
+
+                    <div class="drawer-field">
+                        <label class="drawer-label" for="mobile-filter-difficulty">Difficulty</label>
+                        <select id="mobile-filter-difficulty" class="drawer-select">
+                            <option value="all">All Difficulties</option>
+                            <option value="E">🟢 Easy</option>
+                            <option value="M">🟡 Medium</option>
+                            <option value="H">🔴 Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="drawer-field">
+                        <label class="drawer-label" for="mobile-filter-format">Question Format</label>
+                        <select id="mobile-filter-format" class="drawer-select">
+                            <option value="all">All Formats</option>
+                            <option value="spr">✏️ No Options (Free Response)</option>
+                            <option value="mcq">🔘 Multiple Choice</option>
+                        </select>
+                    </div>
+
+                    <div class="drawer-field">
+                        <label class="drawer-label" for="mobile-filter-domain">Domain</label>
+                        <select id="mobile-filter-domain" class="drawer-select">
+                            <option value="all">All Domains</option>
+                        </select>
+                    </div>
+
+                    <div class="drawer-field">
+                        <label class="switch-label">
+                            <input type="checkbox" id="mobile-filter-exclude-active" checked>
+                            <span class="slider"></span>
+                            <span class="switch-text">🛡️ Exclude Bluebook Tests</span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary drawer-btn-apply" id="btn-apply-drawer">Apply & Continue</button>
+
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); line-height: 1.5; text-align: center;">
+                        OpenBoard was created independently by <a href="https://sohamxyz.com" target="_blank" style="color: var(--accent-light); text-decoration: underline;">Soham Mitra</a>. SAT® is a registered trademark of the College Board.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmarks Modal -->
+        <div class="modal-backdrop hidden" id="bookmarks-modal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3>🔖 Saved Questions (<span id="saved-count-modal">0</span>)</h3>
+                    <button class="icon-btn-small" id="btn-close-modal">✕</button>
+                </div>
+                <div class="modal-body" id="bookmarks-list">
+                    <p class="empty-state">No questions saved yet. Click the bookmark icon 🔖 on any question to review it later.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice History Modal -->
+        <div class="modal-backdrop hidden" id="history-modal">
+            <div class="modal-card modal-card-wide">
+                <div class="modal-header">
+                    <h3>🕒 Practice History (<span id="history-total-count">0</span>)</h3>
+                    <button class="icon-btn-small" id="btn-close-history">✕</button>
+                </div>
+
+                <!-- History Summary Bar -->
+                <div class="history-summary-bar">
+                    <div class="history-stat">
+                        <span class="history-stat-val" id="hist-stat-attempted">0</span>
+                        <span class="history-stat-lbl">Attempted</span>
+                    </div>
+                    <div class="history-stat">
+                        <span class="history-stat-val" id="hist-stat-accuracy">0%</span>
+                        <span class="history-stat-lbl">Accuracy</span>
+                    </div>
+                    <div class="history-stat">
+                        <span class="history-stat-val" id="hist-stat-correct" style="color: var(--green);">0</span>
+                        <span class="history-stat-lbl">Correct</span>
+                    </div>
+                    <div class="history-stat">
+                        <span class="history-stat-val" id="hist-stat-incorrect" style="color: #ef4444;">0</span>
+                        <span class="history-stat-lbl">Incorrect</span>
+                    </div>
+                    <div class="history-stat">
+                        <span class="history-stat-val" id="hist-stat-skipped" style="color: var(--text-3);">0</span>
+                        <span class="history-stat-lbl">Skipped</span>
+                    </div>
+                </div>
+
+                <!-- History Filter Tabs -->
+                <div class="history-filter-tabs">
+                    <button class="history-tab active" data-filter="all">All (<span id="hist-tab-all-count">0</span>)</button>
+                    <button class="history-tab" data-filter="correct">✅ Correct (<span id="hist-tab-correct-count">0</span>)</button>
+                    <button class="history-tab" data-filter="incorrect">❌ Incorrect (<span id="hist-tab-incorrect-count">0</span>)</button>
+                    <button class="history-tab" data-filter="skipped">⏭️ Skipped (<span id="hist-tab-skipped-count">0</span>)</button>
+                </div>
+
+                <!-- History List -->
+                <div class="modal-body history-body" id="history-list">
+                    <p class="empty-state">No questions answered yet. As you solve questions, your history and rationales will appear here.</p>
+                </div>
+
+                <!-- History Footer -->
+                <div class="history-footer">
+                    <button class="btn btn-secondary" id="btn-export-history" title="Download your practice history as JSON">
+                        📥 Export JSON
+                    </button>
+                    <button class="btn-ghost-danger" id="btn-clear-history" title="Clear all local practice history">
+                        🗑️ Clear History
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal Disclaimer Modal -->
+        <div class="modal-backdrop hidden" id="disclaimer-modal">
+            <div class="modal-card" style="max-width: 520px;">
+                <div class="modal-header">
+                    <h3>⚖️ Non-Commercial &amp; Legal Disclaimer</h3>
+                    <button class="icon-btn-small" id="btn-close-disclaimer">✕</button>
+                </div>
+                <div class="modal-body" style="font-size: 0.88rem; line-height: 1.65; color: var(--text-2); display: flex; flex-direction: column; gap: 12px;">
+                    <p>
+                        <strong>OpenBoard</strong> is a <strong>100% free, non-commercial, open-source educational project</strong> created and maintained independently by <strong>Soham Mitra</strong> for student learning and personal study. No subscription fees are charged, no advertisements are displayed, and no user data is monetized.
+                    </p>
+                    <p>
+                        <strong>Trademarks:</strong> Digital SAT® and AP® are registered trademarks of the <strong>College Board</strong>, which is not affiliated with, does not sponsor, and has not endorsed this project or website. Desmos is a registered trademark of Desmos Studio PBC.
+                    </p>
+                    <p>
+                        <strong>Copyright &amp; Intellectual Property:</strong> All test questions, passages, answer options, and official rationales originate from publicly accessible College Board question bank materials and remain the intellectual property and copyright of the College Board. OpenBoard does not claim any ownership over official test content.
+                    </p>
+                    <p>
+                        <strong>Open-Source Repository Notice:</strong> The OpenBoard open-source codebase (<a href="https://github.com/SohamXYZDev/openboard" target="_blank" style="color: var(--accent-light); text-decoration: underline;">GitHub</a>) contains only the application source code (web UI, styling, and server proxy utilities). No proprietary question bank databases or copyright-protected test materials are distributed or hosted within the GitHub repository.
+                    </p>
+                    <p style="font-size: 0.84rem; background: rgba(124, 110, 252, 0.08); border: 1px solid rgba(124, 110, 252, 0.25); padding: 10px 14px; border-radius: 8px; color: var(--text);">
+                        ⚖️ <strong>DMCA &amp; Copyright Owners:</strong> To submit a copyright infringement or takedown notice under 17 U.S.C. § 512, view our <a href="/openboard/dmca" target="_blank" style="color: var(--accent-light); text-decoration: underline;">DMCA Takedown Policy</a> or email our designated agent at <a href="mailto:soham@sohamxyz.com?subject=DMCA%20Notice%20-%20OpenBoard" style="color: var(--accent-light); text-decoration: underline;">soham@sohamxyz.com</a>. We respond and remove disputed material within 24 hours.
+                    </p>
+                    <p style="font-size: 0.78rem; color: var(--text-3); border-top: 1px solid var(--border); padding-top: 10px;">
+                        College Board is a registered trademark of the College Entrance Examination Board. Desmos is a registered trademark of Desmos Studio PBC.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=8.1"></script>
+</body>
+</html>

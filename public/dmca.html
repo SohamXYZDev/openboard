@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMCA &amp; Copyright Policy — OpenBoard</title>
+    <meta name="description" content="Digital Millennium Copyright Act (DMCA) policy, designated copyright agent, and takedown procedure for OpenBoard.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sohamxyz.com/openboard/dmca">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text: #f0f0f5;
+            --text-muted: #9b9bb5;
+            --text-dim: #6b6b85;
+            --accent: #7c6efc;
+            --accent-glow: rgba(124, 110, 252, 0.35);
+            --accent-light: #a78bfa;
+            --accent-subtle: rgba(124, 110, 252, 0.12);
+            --green: #22c55e;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-pill: 100px;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.65;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(124, 110, 252, 0.08) 0%, transparent 65%),
+                radial-gradient(circle at 100% 100%, rgba(79, 70, 229, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Header */
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 36px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7c6efc 0%, #4f46e5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            transition: var(--transition);
+        }
+
+        .btn-nav:hover {
+            color: var(--text);
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        /* Container */
+        .content-container {
+            max-width: 820px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 24px;
+            flex: 1;
+        }
+
+        .policy-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 44px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .badge-dmca {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            background: var(--accent-subtle);
+            color: var(--accent-light);
+            border: 1px solid rgba(124, 110, 252, 0.3);
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .meta-date {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 32px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        strong {
+            color: var(--text);
+        }
+
+        ul, ol {
+            margin: 12px 0 20px 24px;
+            color: var(--text-muted);
+            font-size: 0.93rem;
+            line-height: 1.7;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Callout Box */
+        .callout-box {
+            background: rgba(124, 110, 252, 0.08);
+            border: 1px solid rgba(124, 110, 252, 0.25);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+
+        .callout-box h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .agent-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.92rem;
+        }
+
+        .agent-table th, .agent-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .agent-table th {
+            color: var(--text-dim);
+            font-weight: 600;
+            width: 32%;
+        }
+
+        .agent-table td {
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.88rem;
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .btn-action-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-action-primary:hover {
+            background: var(--accent-light);
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .site-footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 36px;
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-top: auto;
+        }
+
+        .site-footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .site-footer a:hover {
+            color: var(--accent-light);
+        }
+
+        @media (max-width: 600px) {
+            .site-header {
+                padding: 14px 20px;
+            }
+            .policy-card {
+                padding: 24px 20px;
+            }
+            h1 {
+                font-size: 1.55rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <a href="/openboard" class="header-brand">
+            <div class="brand-icon">🎯</div>
+            <span class="brand-text">OpenBoard</span>
+        </a>
+        <div class="header-actions">
+            <a href="/openboard" class="btn-nav">Hub Directory</a>
+            <a href="/openboard/sat" class="btn-nav btn-primary">Launch SAT</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content-container">
+        <article class="policy-card">
+            <div class="badge-dmca">⚖️ 17 U.S.C. § 512 Compliance</div>
+            <h1>Digital Millennium Copyright Act (DMCA) &amp; Copyright Policy</h1>
+            <p class="meta-date">Last Updated: September 2026 • Policy Version 1.0</p>
+
+            <section>
+                <h2 class="section-title">1. Statement of Intellectual Property Principles</h2>
+                <p>
+                    <strong>OpenBoard</strong> (<code>sohamxyz.com/openboard</code>) is an independent, 100% free, non-commercial, open-source educational resource designed to support student study and research. OpenBoard fully respects the intellectual property rights of test creators, copyright holders, and authors.
+                </p>
+                <p>
+                    It is the strict policy of OpenBoard to respond expeditiously to clear, valid notices of alleged copyright infringement in accordance with the provisions of Title II of the <strong>Digital Millennium Copyright Act (17 U.S.C. § 512)</strong> ("DMCA"). Upon receiving a compliant notice, we will act promptly to remove or disable access to the contested material.
+                </p>
+            </section>
+
+            <section>
+                <div class="callout-box">
+                    <h4>📬 Designated DMCA Copyright Agent</h4>
+                    <p style="margin-bottom: 8px;">For formal copyright infringement notifications, please contact our designated agent:</p>
+                    <table class="agent-table">
+                        <tr>
+                            <th>Designated Agent</th>
+                            <td>Soham Mitra</td>
+                        </tr>
+                        <tr>
+                            <th>Email Address</th>
+                            <td><a href="mailto:soham@sohamxyz.com?subject=DMCA%20Notice%20-%20OpenBoard" style="color: var(--accent-light); text-decoration: underline;">soham@sohamxyz.com</a></td>
+                        </tr>
+                        <tr>
+                            <th>Website</th>
+                            <td><a href="https://sohamxyz.com" target="_blank" style="color: var(--accent-light); text-decoration: underline;">sohamxyz.com</a></td>
+                        </tr>
+                        <tr>
+                            <th>Response Guarantee</th>
+                            <td><strong style="color: var(--green);">Within 24 business hours</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. How to Submit a Copyright Infringement Notice</h2>
+                <p>
+                    If you are a copyright owner (e.g., College Entrance Examination Board, ACT, Inc., or ETS), or an authorized legal agent acting on their behalf, and you believe that any question, passage, solution step, or content rendered through OpenBoard infringes upon your copyright, please provide a written communication containing the following elements:
+                </p>
+                <ol>
+                    <li>
+                        <strong>Physical or Electronic Signature:</strong> An authorized physical or electronic signature of a person authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.
+                    </li>
+                    <li>
+                        <strong>Identification of Copyrighted Work:</strong> Clear identification of the copyrighted work claimed to have been infringed, or if multiple works are covered by a single notification, a representative list of such works.
+                    </li>
+                    <li>
+                        <strong>Specific Location of Material:</strong> Clear identification of the material that is claimed to be infringing or to be the subject of infringing activity and that is to be removed, including specific URLs, Question IDs (e.g. <code>ID: 740de32f</code>), or parameters sufficient to permit OpenBoard to locate the material.
+                    </li>
+                    <li>
+                        <strong>Contact Information:</strong> Information reasonably sufficient to permit OpenBoard to contact you, such as your full name, organization, physical mailing address, telephone number, and email address.
+                    </li>
+                    <li>
+                        <strong>Good Faith Statement:</strong> A statement that you have a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.
+                    </li>
+                    <li>
+                        <strong>Accuracy &amp; Perjury Statement:</strong> A statement that the information in the notification is accurate, and under penalty of perjury, that you are authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.
+                    </li>
+                </ol>
+            </section>
+
+            <section>
+                <h2 class="section-title">3. Expedited Removal Protocol</h2>
+                <p>
+                    Upon receipt of a valid and complete DMCA notification satisfying the statutory requirements of 17 U.S.C. § 512(c)(3), OpenBoard will:
+                </p>
+                <ul>
+                    <li>Expeditiously remove or disable public access to the identified item(s) within <strong>24 business hours</strong>.</li>
+                    <li>If requested by a test maker or copyright authority, purge any associated cached records or disable the corresponding exam module entirely.</li>
+                    <li>Confirm remediation in writing to the reporting party.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="section-title">4. Open Source &amp; Repository Scope</h2>
+                <p>
+                    The public OpenBoard open-source codebase (<a href="https://github.com/SohamXYZDev/openboard" target="_blank" style="color: var(--accent-light); text-decoration: underline;">GitHub: SohamXYZDev/openboard</a>) contains strictly the original application user interface, interactive graphing calculators, styling, and server proxy code. <strong>No question bank databases, proprietary test materials, or copyrighted question files are stored, hosted, or distributed within the GitHub repository.</strong>
+                </p>
+            </section>
+
+            <section>
+                <h2 class="section-title">5. Trademark Notice &amp; Non-Affiliation</h2>
+                <p>
+                    SAT® and AP® are registered trademarks of the <strong>College Board</strong>. ACT® is a registered trademark of <strong>ACT, Inc.</strong> GRE® is a registered trademark of <strong>Educational Testing Service (ETS)</strong>. Desmos is a registered trademark of <strong>Desmos Studio PBC</strong>.
+                </p>
+                <p>
+                    OpenBoard is an independent project and is not affiliated with, sponsored by, authorized by, or endorsed by the College Board, ACT, Inc., ETS, or any other standardized testing organization. All references to test names are nominative fair-use references identifying the exam subject matter.
+                </p>
+            </section>
+
+            <div class="cta-row">
+                <a href="mailto:soham@sohamxyz.com?subject=DMCA%20Notice%20-%20OpenBoard" class="btn-action-primary">
+                    ✉️ Email DMCA Agent (soham@sohamxyz.com)
+                </a>
+                <a href="/openboard" class="btn-nav">
+                    ← Back to OpenBoard Hub
+                </a>
+            </div>
+        </article>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>
+            OpenBoard — Non-commercial open-source educational project by <a href="https://sohamxyz.com" target="_blank">Soham Mitra</a>.
+            • <a href="/openboard/sat">Digital SAT</a> • <a href="/openboard/dmca">DMCA Policy</a> • <a href="https://github.com/SohamXYZDev/openboard" target="_blank">GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>

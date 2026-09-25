@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Telemetry &amp; Stats — OpenBoard</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-2: #0f0f1a;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-2: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-2: rgba(255, 255, 255, 0.14);
+            --text: #f0f0f5;
+            --text-2: #9b9bb5;
+            --text-3: #6b6b85;
+            --accent: #7c6efc;
+            --accent-2: #a78bfa;
+            --accent-glow: rgba(124, 110, 252, 0.35);
+            --green: #22c55e;
+            --green-glow: rgba(34, 197, 94, 0.25);
+            --red: #ff4500;
+            --gold: #f59e0b;
+            --font: 'Inter', system-ui, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.6;
+            padding: 32px 20px 60px;
+        }
+
+        .container {
+            max-width: 1040px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        /* Header */
+        .dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .dash-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-title h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 50%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dash-title p {
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .dash-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 18px var(--accent-glow);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-subtle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            box-shadow: none;
+        }
+
+        .btn-subtle:hover {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .metric-lbl {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-3);
+            font-family: var(--mono);
+            font-weight: 600;
+        }
+
+        .metric-val {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text);
+            font-family: var(--mono);
+            letter-spacing: -0.03em;
+        }
+
+        .metric-sub {
+            font-size: 12px;
+            color: var(--text-2);
+        }
+
+        /* Panels Grid */
+        .panels-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .panels-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-2);
+            font-family: var(--mono);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Table & Lists */
+        .stat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13.5px;
+        }
+
+        .stat-row span strong {
+            font-family: var(--mono);
+            color: var(--accent-2);
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 12.5px;
+        }
+
+        .event-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .badge-dot.correct { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+        .badge-dot.wrong { background: var(--red); }
+        .badge-dot.skip { background: var(--gold); }
+
+        .event-time {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-3);
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--green);
+            font-family: var(--mono);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--green-glow);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Bar -->
+        <header class="dash-header">
+            <div class="dash-title">
+                <h1>OpenBoard Internal Telemetry</h1>
+                <p>Private telemetry &amp; live drill activity &bull; Built independently by Soham Mitra</p>
+            </div>
+            <div class="dash-actions">
+                <span class="live-indicator"><span class="pulse-dot"></span> Internal Feed</span>
+                <button class="btn btn-subtle" id="btn-refresh">🔄 Refresh</button>
+                <a href="/openboard/sat" class="btn">Practice SAT →</a>
+            </div>
+        </header>
+
+        <!-- KPI Metrics -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-lbl">Unique Visitors</span>
+                <span class="metric-val" id="metric-uniques">0</span>
+                <span class="metric-sub" id="metric-uniques-sub">All-time unique devices</span>
+            </div>
+
+            <div class="metric-card">
+                <span class="metric-lbl">Total Page Views</span>
+                <span class="metric-val" id="metric-views">0</span>
+                <span class="metric-sub" id="metric-today-views">0 today</span>
+            </div>
+
+            <div class="metric-card">
+                <span class="metric-lbl">Questions Answered</span>
+                <span class="metric-val" id="metric-answers">0</span>
+                <span class="metric-sub" id="metric-today-answers">0 solved today</span>
+            </div>
+
+            <div class="metric-card">
+                <span class="metric-lbl">Global Accuracy</span>
+                <span class="metric-val" id="metric-accuracy">0%</span>
+                <span class="metric-sub" id="metric-accuracy-sub">Across all student drills</span>
+            </div>
+        </section>
+
+        <!-- Panels -->
+        <div class="panels-grid">
+            <!-- Subject Activity & Referrals -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>Subject Breakdown</span>
+                </div>
+                <div class="stat-row">
+                    <span>📖 Reading & Writing Drills</span>
+                    <span><strong id="stat-rw">0</strong> answered</span>
+                </div>
+                <div class="stat-row">
+                    <span>📐 Math Drills</span>
+                    <span><strong id="stat-math">0</strong> answered</span>
+                </div>
+                <div class="stat-row">
+                    <span>⏭️ Questions Skipped</span>
+                    <span><strong id="stat-skips">0</strong> skips</span>
+                </div>
+
+                <div class="panel-title" style="margin-top: 14px;">
+                    <span>Top Referral Channels</span>
+                </div>
+                <div id="referrals-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="stat-row">
+                        <span>Direct / Bookmarks</span>
+                        <span><strong>100%</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Stream of Recent Activity -->
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>Real-time Question Feed</span>
+                    <span style="font-size: 11px; color: var(--text-3);" id="feed-status">Auto-updating</span>
+                </div>
+                <div id="events-stream" style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto;">
+                    <p style="color: var(--text-3); font-size: 13px; text-align: center; padding: 20px;">Waiting for student activity...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal & Trademark Disclaimer -->
+        <footer style="margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-3); line-height: 1.6;">
+            <p>
+                <strong>Legal Disclaimer:</strong> SAT® is a trademark registered by the College Board, which was not involved in the production of, and does not endorse, sponsor, or support this platform. OpenBoard is an independent open educational resource.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = window.location.pathname.includes('/openboard')
+            ? '/openboard/sat/api'
+            : (window.location.pathname.includes('/sat') ? '/sat/api' : '/api');
+
+        async function fetchAnalytics() {
+            try {
+                const res = await fetch(`${API_BASE}/analytics`);
+                const data = await res.json();
+
+                document.getElementById('metric-uniques').textContent = Number(data.totalUniqueVisitors || 0).toLocaleString();
+                document.getElementById('metric-views').textContent = Number(data.totalPageViews || 0).toLocaleString();
+                document.getElementById('metric-today-views').textContent = `${data.today?.views || 0} visits today`;
+                document.getElementById('metric-answers').textContent = Number(data.totalQuestionsAnswered || 0).toLocaleString();
+                document.getElementById('metric-today-answers').textContent = `${data.today?.answers || 0} answered today`;
+                document.getElementById('metric-accuracy').textContent = data.accuracy || '0%';
+
+                document.getElementById('stat-rw').textContent = Number(data.subjectBreakdown?.rw || 0).toLocaleString();
+                document.getElementById('stat-math').textContent = Number(data.subjectBreakdown?.math || 0).toLocaleString();
+                document.getElementById('stat-skips').textContent = Number(data.totalQuestionsSkipped || 0).toLocaleString();
+
+                // Referrers
+                const refList = document.getElementById('referrals-list');
+                const refEntries = Object.entries(data.referrers || {});
+                if (refEntries.length > 0) {
+                    refList.innerHTML = '';
+                    refEntries.sort((a, b) => b[1] - a[1]).forEach(([domain, count]) => {
+                        const row = document.createElement('div');
+                        row.className = 'stat-row';
+                        row.innerHTML = `<span>🌐 ${domain}</span><span><strong>${count}</strong> visits</span>`;
+                        refList.appendChild(row);
+                    });
+                }
+
+                // Recent Events
+                const stream = document.getElementById('events-stream');
+                if (data.recentEvents && data.recentEvents.length > 0) {
+                    stream.innerHTML = '';
+                    data.recentEvents.forEach(evt => {
+                        const row = document.createElement('div');
+                        row.className = 'event-item';
+                        
+                        let dotClass = 'skip';
+                        let label = 'Skipped';
+                        if (evt.type === 'answer') {
+                            dotClass = evt.correct ? 'correct' : 'wrong';
+                            label = `${evt.correct ? '✓ Solved' : '✗ Missed'} (${evt.subject === 'rw' ? 'R&W' : 'Math'})`;
+                        }
+
+                        const timeAgo = formatTimeAgo(evt.time);
+                        row.innerHTML = `
+                            <div class="event-left">
+                                <span class="badge-dot ${dotClass}"></span>
+                                <span>${label}</span>
+                            </div>
+                            <span class="event-time">${timeAgo}</span>
+                        `;
+                        stream.appendChild(row);
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to load analytics', err);
+            }
+        }
+
+        function formatTimeAgo(ts) {
+            if (!ts) return 'just now';
+            const diff = Math.floor((Date.now() - ts) / 1000);
+            if (diff < 5) return 'just now';
+            if (diff < 60) return `${diff}s ago`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            return `${Math.floor(diff / 3600)}h ago`;
+        }
+
+        document.getElementById('btn-refresh').addEventListener('click', fetchAnalytics);
+
+        fetchAnalytics();
+        setInterval(fetchAnalytics, 8000);
+    </script>
+</body>
+</html>
