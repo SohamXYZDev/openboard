@@ -217,6 +217,56 @@ body {
     color: var(--red-2);
 }
 
+.stat-box-interactive {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    transition: all 0.2s var(--transition);
+}
+
+.stat-box-interactive:hover {
+    border-color: rgba(124, 110, 252, 0.4);
+    background: rgba(124, 110, 252, 0.08);
+}
+
+.stat-reset-btn {
+    background: none;
+    border: none;
+    color: var(--text-3);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-left: 3px;
+    opacity: 0.55;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-box-interactive:hover .stat-reset-btn,
+.stat-reset-btn:hover {
+    opacity: 1;
+    color: var(--accent-light);
+    transform: rotate(-90deg);
+}
+
+.mobile-chip-reset {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-left: 4px;
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.accuracy-chip:active .mobile-chip-reset {
+    transform: rotate(-90deg);
+    opacity: 1;
+}
+
 .icon-btn {
     background: var(--surface);
     border: 1px solid var(--border);

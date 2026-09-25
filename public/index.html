@@ -100,7 +100,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
     <!-- Design System CSS -->
-    <link rel="stylesheet" href="style.css?v=8.1">
+    <link rel="stylesheet" href="style.css?v=8.2">
     <!-- MathJax for rendering math formulas and MathML -->
     <script>
         window.MathJax = {
@@ -135,10 +135,11 @@
                     <span class="stat-val" id="streak-counter">0</span>
                     <span class="stat-lbl">Streak</span>
                 </div>
-                <div class="stat-box" title="Accuracy percentage">
+                <div class="stat-box accuracy-box stat-box-interactive" id="accuracy-box" title="Session accuracy &amp; score. Click ↺ to reset to 0/0">
                     <span class="stat-icon">🎯</span>
                     <span class="stat-val" id="accuracy-counter">0%</span>
                     <span class="stat-lbl" id="score-counter">0/0</span>
+                    <button type="button" class="stat-reset-btn" id="btn-reset-accuracy" title="Reset accuracy and start from 0/0" aria-label="Reset score to 0/0">↺</button>
                 </div>
                 <div class="stat-box timer-box" title="Session time">
                     <span class="stat-icon">⏱️</span>
@@ -204,7 +205,7 @@
         <div class="mobile-top-bar mobile-only">
             <div class="mobile-stats">
                 <span class="mobile-chip streak-chip">🔥 <strong id="mobile-streak">0</strong></span>
-                <span class="mobile-chip accuracy-chip">🎯 <strong id="mobile-accuracy">0%</strong></span>
+                <span class="mobile-chip accuracy-chip" id="mobile-accuracy-chip" title="Tap to reset accuracy to 0/0" style="cursor: pointer;">🎯 <strong id="mobile-accuracy">0%</strong> <span class="mobile-chip-reset" title="Reset score to 0/0">↺</span></span>
             </div>
             <div class="mobile-subject-pill" id="mobile-subject-badge">All SAT</div>
             <div class="mobile-actions">
@@ -554,9 +555,14 @@
 
                 <!-- History Footer -->
                 <div class="history-footer">
-                    <button class="btn btn-secondary" id="btn-export-history" title="Download your practice history as JSON">
-                        📥 Export JSON
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" id="btn-reset-accuracy-modal" title="Reset session score counter back to 0/0">
+                            ↺ Reset Score (0/0)
+                        </button>
+                        <button class="btn btn-secondary" id="btn-export-history" title="Download your practice history as JSON">
+                            📥 Export JSON
+                        </button>
+                    </div>
                     <button class="btn-ghost-danger" id="btn-clear-history" title="Clear all local practice history">
                         🗑️ Clear History
                     </button>
@@ -595,6 +601,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=8.1"></script>
+    <script src="app.js?v=8.2"></script>
 </body>
 </html>

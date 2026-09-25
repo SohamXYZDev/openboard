@@ -56,8 +56,10 @@
     // --- DOM Elements ---
     // Desktop Header Stats
     const streakCounter = document.getElementById('streak-counter');
+    const accuracyBox = document.getElementById('accuracy-box');
     const accuracyCounter = document.getElementById('accuracy-counter');
     const scoreCounter = document.getElementById('score-counter');
+    const btnResetAccuracy = document.getElementById('btn-reset-accuracy');
     const sessionTimer = document.getElementById('session-timer');
     const bookmarksCount = document.getElementById('bookmarks-count');
     const historyCount = document.getElementById('history-count');
@@ -66,6 +68,7 @@
     // Mobile Top Bar Elements
     const mobileStreak = document.getElementById('mobile-streak');
     const mobileAccuracy = document.getElementById('mobile-accuracy');
+    const mobileAccuracyChip = document.getElementById('mobile-accuracy-chip');
     const mobileSubjectBadge = document.getElementById('mobile-subject-badge');
     const mobileBookmarksBadge = document.getElementById('mobile-bookmarks-badge');
     const mobileHistoryBadge = document.getElementById('mobile-history-badge');
@@ -161,6 +164,7 @@
     const histTabCorrectCount = document.getElementById('hist-tab-correct-count');
     const histTabIncorrectCount = document.getElementById('hist-tab-incorrect-count');
     const histTabSkippedCount = document.getElementById('hist-tab-skipped-count');
+    const btnResetAccuracyModal = document.getElementById('btn-reset-accuracy-modal');
     const btnExportHistory = document.getElementById('btn-export-history');
     const btnClearHistory = document.getElementById('btn-clear-history');
     const historyTabs = document.querySelectorAll('.history-tab');
@@ -1533,14 +1537,51 @@
         });
     }
 
+    // Reset Accuracy & Session Score (Start from 0/0)
+    function resetAccuracyScore() {
+        if (stats.attempted === 0 && stats.correct === 0) {
+            alert('Session score is already at 0/0 (0%).');
+            return;
+        }
+
+        if (confirm(`Reset session accuracy and score counter (${stats.correct}/${stats.attempted}) back to 0/0?`)) {
+            stats.attempted = 0;
+            stats.correct = 0;
+            try {
+                localStorage.setItem('sat_quizzer_stats', JSON.stringify(stats));
+            } catch (e) {}
+            updateStatsDisplay();
+        }
+    }
+
+    if (btnResetAccuracy) {
+        btnResetAccuracy.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetAccuracyScore();
+        });
+    }
+    if (accuracyBox) {
+        accuracyBox.addEventListener('click', resetAccuracyScore);
+    }
+    if (mobileAccuracyChip) {
+        mobileAccuracyChip.addEventListener('click', resetAccuracyScore);
+    }
+    if (btnResetAccuracyModal) {
+        btnResetAccuracyModal.addEventListener('click', resetAccuracyScore);
+    }
+
     // Clear History
     if (btnClearHistory) {
         btnClearHistory.addEventListener('click', () => {
-            if (history.length === 0) return;
-            if (confirm('Clear your entire practice history? This cannot be undone.')) {
+            if (history.length === 0 && stats.attempted === 0) return;
+            if (confirm('Clear your entire practice history and reset your session score back to 0/0? This cannot be undone.')) {
                 history = [];
+                stats.attempted = 0;
+                stats.correct = 0;
+                stats.streak = 0;
                 try {
                     localStorage.removeItem('sat_quizzer_history');
+                    localStorage.setItem('sat_quizzer_stats', JSON.stringify(stats));
                 } catch (e) {}
                 renderHistoryList();
                 updateStatsDisplay();
