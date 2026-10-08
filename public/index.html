@@ -114,46 +114,103 @@
     <div id="app" class="app-layout">
         <!-- Desktop Header (Hidden on mobile) -->
         <header class="app-header desktop-only">
-            <div class="header-left">
-                <a href="/openboard" class="brand" title="OpenBoard Exam Directory" style="text-decoration: none; color: inherit;">
-                    <div class="brand-icon">🎯</div>
-                    <div class="brand-text">
-                        <h1 class="brand-name" style="margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;">OpenBoard</h1>
-                    </div>
-                </a>
+            <!-- Drill Mode Header Content -->
+            <div class="header-drill-wrap" id="header-drill-wrap">
+                <div class="header-left">
+                    <a href="/openboard" class="brand" title="OpenBoard Exam Directory" style="text-decoration: none; color: inherit;">
+                        <div class="brand-icon">🎯</div>
+                        <div class="brand-text">
+                            <h1 class="brand-name" style="margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;">OpenBoard</h1>
+                        </div>
+                    </a>
 
-                <div class="subject-pills" id="desktop-subject-pills">
-                    <button class="pill active" data-subject="all">All</button>
-                    <button class="pill" data-subject="rw">Reading & Writing</button>
-                    <button class="pill" data-subject="math">Math</button>
+                    <!-- Mode Switcher Pill Group -->
+                    <div class="mode-switch-group" id="mode-switch-group">
+                        <button type="button" class="mode-pill-btn active" id="btn-mode-drill" title="Endless Drill Practice with Instant Explanations">
+                            <span>🎯 Drill</span>
+                        </button>
+                        <button type="button" class="mode-pill-btn" id="btn-mode-test" title="Full Practice Test Simulation with Bluebook Pacing & Score Report">
+                            <span>📝 Practice Test</span>
+                        </button>
+                    </div>
+
+                    <div class="subject-pills" id="desktop-subject-pills">
+                        <button class="pill active" data-subject="all">All</button>
+                        <button class="pill" data-subject="rw">Reading & Writing</button>
+                        <button class="pill" data-subject="math">Math</button>
+                    </div>
+                </div>
+
+                <div class="header-stats">
+                    <div class="stat-box streak-box" title="Current streak">
+                        <span class="stat-icon">🔥</span>
+                        <span class="stat-val" id="streak-counter">0</span>
+                        <span class="stat-lbl">Streak</span>
+                    </div>
+                    <div class="stat-box accuracy-box stat-box-interactive" id="accuracy-box" title="Session accuracy &amp; score. Click ↺ to reset to 0/0">
+                        <span class="stat-icon">🎯</span>
+                        <span class="stat-val" id="accuracy-counter">0%</span>
+                        <span class="stat-lbl" id="score-counter">0/0</span>
+                        <button type="button" class="stat-reset-btn" id="btn-reset-accuracy" title="Reset accuracy and start from 0/0" aria-label="Reset score to 0/0">↺</button>
+                    </div>
+                    <div class="stat-box timer-box" title="Session time">
+                        <span class="stat-icon">⏱️</span>
+                        <span class="stat-val" id="session-timer">00:00</span>
+                        <span class="stat-lbl">Time</span>
+                    </div>
+                    <button class="icon-btn" id="btn-history" title="Practice History">
+                        <span>🕒</span>
+                        <span class="badge" id="history-count">0</span>
+                    </button>
+                    <button class="icon-btn" id="btn-bookmarks" title="Saved Questions">
+                        <span>🔖</span>
+                        <span class="badge" id="bookmarks-count">0</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="header-stats">
-                <div class="stat-box streak-box" title="Current streak">
-                    <span class="stat-icon">🔥</span>
-                    <span class="stat-val" id="streak-counter">0</span>
-                    <span class="stat-lbl">Streak</span>
+            <!-- Active Test Mode HUD -->
+            <div class="test-hud hidden" id="test-hud">
+                <div class="test-hud-left">
+                    <span class="test-hud-brand">OpenBoard</span>
+                    <span class="test-hud-title" id="test-hud-title">Reading &amp; Writing Module</span>
+                    <button type="button" class="test-flag-btn" id="btn-test-flag" title="Mark for Review (Shortcut: M)">
+                        <span class="flag-icon" id="test-flag-icon">🚩</span>
+                        <span class="flag-text" id="test-flag-text">Mark for Review</span>
+                    </button>
                 </div>
-                <div class="stat-box accuracy-box stat-box-interactive" id="accuracy-box" title="Session accuracy &amp; score. Click ↺ to reset to 0/0">
-                    <span class="stat-icon">🎯</span>
-                    <span class="stat-val" id="accuracy-counter">0%</span>
-                    <span class="stat-lbl" id="score-counter">0/0</span>
-                    <button type="button" class="stat-reset-btn" id="btn-reset-accuracy" title="Reset accuracy and start from 0/0" aria-label="Reset score to 0/0">↺</button>
+
+                <div class="test-hud-center">
+                    <div class="test-timer-box" id="test-timer-box">
+                        <span class="test-timer-clock" id="test-timer-display">32:00</span>
+                        <button type="button" class="test-timer-hide-btn" id="btn-test-timer-hide" title="Hide or show countdown clock">Hide</button>
+                    </div>
                 </div>
-                <div class="stat-box timer-box" title="Session time">
-                    <span class="stat-icon">⏱️</span>
-                    <span class="stat-val" id="session-timer">00:00</span>
-                    <span class="stat-lbl">Time</span>
+
+                <div class="test-hud-right">
+                    <button type="button" class="test-nav-btn" id="btn-open-nav" title="Question Navigator Grid">
+                        <span id="test-nav-btn-text">Question 1 of 27</span>
+                        <span class="nav-chevron">▾</span>
+                    </button>
+                    <button type="button" class="test-exit-btn" id="btn-test-exit" title="Exit Practice Test">✕ Exit Test</button>
                 </div>
-                <button class="icon-btn" id="btn-history" title="Practice History">
-                    <span>🕒</span>
-                    <span class="badge" id="history-count">0</span>
-                </button>
-                <button class="icon-btn" id="btn-bookmarks" title="Saved Questions">
-                    <span>🔖</span>
-                    <span class="badge" id="bookmarks-count">0</span>
-                </button>
+            </div>
+
+            <!-- Review Mode HUD -->
+            <div class="test-review-hud hidden" id="test-review-hud">
+                <div class="test-review-hud-left">
+                    <span class="review-mode-tag">Test Review</span>
+                    <span class="review-question-label" id="review-question-label">Question 1 of 27</span>
+                    <span class="review-status-chip correct" id="review-status-chip">✓ Correct</span>
+                </div>
+                <div class="test-review-hud-right">
+                    <button type="button" class="btn btn-secondary icon-btn-small" id="btn-review-score-report" title="Back to Score Report">
+                        📊 Score Report
+                    </button>
+                    <button type="button" class="btn btn-secondary icon-btn-small" id="btn-review-exit" title="Exit Review to Drill Mode">
+                        ✕ Exit Review
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -202,18 +259,21 @@
         </div>
 
         <!-- Mobile Top Bar (Ultra-compact, only shown on mobile) -->
-        <div class="mobile-top-bar mobile-only">
+        <div class="mobile-top-bar mobile-only" id="mobile-top-bar">
             <div class="mobile-stats">
                 <span class="mobile-chip streak-chip">🔥 <strong id="mobile-streak">0</strong></span>
                 <span class="mobile-chip accuracy-chip" id="mobile-accuracy-chip" title="Tap to reset accuracy to 0/0" style="cursor: pointer;">🎯 <strong id="mobile-accuracy">0%</strong> <span class="mobile-chip-reset" title="Reset score to 0/0">↺</span></span>
             </div>
             <div class="mobile-subject-pill" id="mobile-subject-badge">All SAT</div>
             <div class="mobile-actions">
+                <button class="mobile-icon-btn" id="btn-mobile-test-launch" aria-label="Practice Test" title="Start Timed Practice Test">
+                    <span>📝</span>
+                </button>
                 <button class="mobile-icon-btn hidden" id="btn-mobile-calc" aria-label="Desmos Calculator" title="Open Desmos Graphing Calculator">
                     <span>🧮</span>
                 </button>
                 <button class="mobile-icon-btn" id="btn-mobile-pad" aria-label="Rough Pad" title="Open Scratchpad / Rough Pad">
-                    <span>📝</span>
+                    <span>✏️</span>
                 </button>
                 <button class="mobile-icon-btn" id="btn-mobile-filters" aria-label="Filters">
                     <span>⚙️</span>
@@ -225,6 +285,30 @@
                 <button class="mobile-icon-btn" id="btn-mobile-bookmarks" aria-label="Bookmarks">
                     <span>🔖</span>
                     <span class="badge" id="mobile-bookmarks-badge">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Test Mode Top Bar -->
+        <div class="mobile-top-bar mobile-only mobile-test-hud hidden" id="mobile-test-top-bar">
+            <div class="mobile-test-timer-chip" id="mobile-test-timer-chip">
+                ⏱️ <span id="mobile-test-timer-display">32:00</span>
+            </div>
+            <button class="mobile-test-flag-chip" id="btn-mobile-test-flag">
+                <span id="mobile-flag-icon">🚩</span> Flag
+            </button>
+            <div class="mobile-actions">
+                <button class="mobile-icon-btn hidden" id="btn-mobile-test-calc" aria-label="Calculator" title="Desmos Calculator">
+                    <span>🧮</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-test-pad" aria-label="Rough Pad" title="Rough Pad">
+                    <span>✏️</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-open-nav" aria-label="Navigator" title="Questions Grid">
+                    <span>📑</span>
+                </button>
+                <button class="mobile-icon-btn" id="btn-mobile-test-exit" aria-label="Exit" title="Exit Test">
+                    <span>✕</span>
                 </button>
             </div>
         </div>
@@ -402,18 +486,46 @@
                 </div>
 
                 <!-- Desktop Footer (Hidden on mobile) -->
+                <!-- Desktop Footer (Hidden on mobile) -->
                 <footer class="quiz-footer desktop-only">
-                    <div class="footer-left">
-                        <span class="shortcut-tip"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> select &bull; <kbd>Enter</kbd> submit &bull; <kbd>S</kbd> skip &bull; <kbd>H</kbd> history</span>
-                        <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
-                        <button type="button" id="btn-open-disclaimer" style="background: none; border: none; color: var(--text-3); font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-3)'" title="View Legal & Trademark Disclaimer">Disclaimer</button>
-                        <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
-                        <a href="/openboard/dmca" target="_blank" style="color: var(--text-3); font-size: 11px; text-decoration: underline; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-3)'" title="View DMCA & Copyright Policy">DMCA Policy</a>
+                    <!-- Drill Mode Footer -->
+                    <div class="footer-drill-wrap" id="footer-drill-wrap">
+                        <div class="footer-left">
+                            <span class="shortcut-tip"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> select &bull; <kbd>Enter</kbd> submit &bull; <kbd>S</kbd> skip &bull; <kbd>H</kbd> history</span>
+                            <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
+                            <button type="button" id="btn-open-disclaimer" style="background: none; border: none; color: var(--text-3); font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-3)'" title="View Legal & Trademark Disclaimer">Disclaimer</button>
+                            <span style="margin: 0 8px; color: var(--border-2);">&bull;</span>
+                            <a href="/openboard/dmca" target="_blank" style="color: var(--text-3); font-size: 11px; text-decoration: underline; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-light)'" onmouseout="this.style.color='var(--text-3)'" title="View DMCA & Copyright Policy">DMCA Policy</a>
+                        </div>
+                        <div class="footer-right">
+                            <button class="btn btn-secondary hidden" id="btn-jump-rationale" title="Jump down to explanation">💡 Explanation</button>
+                            <button class="btn btn-secondary" id="btn-skip" title="Skip to another question (S)">Skip</button>
+                            <button class="btn btn-primary" id="btn-action">Check Answer</button>
+                        </div>
                     </div>
-                    <div class="footer-right">
-                        <button class="btn btn-secondary hidden" id="btn-jump-rationale" title="Jump down to explanation">💡 Explanation</button>
-                        <button class="btn btn-secondary" id="btn-skip" title="Skip to another question (S)">Skip</button>
-                        <button class="btn btn-primary" id="btn-action">Check Answer</button>
+
+                    <!-- Test Mode Footer -->
+                    <div class="footer-test-wrap hidden" id="footer-test-wrap">
+                        <div class="footer-left">
+                            <button type="button" class="btn btn-secondary" id="btn-test-prev" disabled>
+                                ← Back
+                            </button>
+                        </div>
+                        <div class="footer-center">
+                            <button type="button" class="test-footer-nav-btn" id="btn-test-footer-nav" title="Open Question Navigator">
+                                <span id="test-footer-qnum">Question 1 of 27</span>
+                                <span class="footer-nav-bullet">&bull;</span>
+                                <span id="test-footer-status">Unanswered</span>
+                            </button>
+                        </div>
+                        <div class="footer-right">
+                            <button type="button" class="btn btn-secondary" id="btn-test-open-review" title="Review answered and unanswered questions">
+                                Review Module
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btn-test-next">
+                                Next →
+                            </button>
+                        </div>
                     </div>
                 </footer>
             </div>
@@ -421,17 +533,33 @@
 
         <!-- Mobile Bottom Taskbar (Fixed at bottom on mobile) -->
         <nav class="mobile-taskbar mobile-only">
-            <button class="mobile-taskbar-btn" id="btn-mobile-skip" aria-label="Skip question">
-                <span class="btn-icon">⏭️</span>
-                <span class="btn-label">Skip</span>
-            </button>
-            <button class="btn btn-primary btn-mobile-action" id="btn-mobile-action" disabled>
-                Check Answer
-            </button>
-            <button class="mobile-taskbar-btn" id="btn-mobile-bookmark" aria-label="Bookmark question">
-                <span class="btn-icon">🔖</span>
-                <span class="btn-label">Save</span>
-            </button>
+            <!-- Mobile Drill Taskbar -->
+            <div class="mobile-taskbar-inner" id="mobile-drill-taskbar">
+                <button class="mobile-taskbar-btn" id="btn-mobile-skip" aria-label="Skip question">
+                    <span class="btn-icon">⏭️</span>
+                    <span class="btn-label">Skip</span>
+                </button>
+                <button class="btn btn-primary btn-mobile-action" id="btn-mobile-action" disabled>
+                    Check Answer
+                </button>
+                <button class="mobile-taskbar-btn" id="btn-mobile-bookmark" aria-label="Bookmark question">
+                    <span class="btn-icon">🔖</span>
+                    <span class="btn-label">Save</span>
+                </button>
+            </div>
+
+            <!-- Mobile Test Taskbar -->
+            <div class="mobile-taskbar-inner hidden" id="mobile-test-taskbar">
+                <button class="btn btn-secondary mobile-test-btn-prev" id="btn-mobile-test-prev" disabled>
+                    ← Back
+                </button>
+                <button class="mobile-test-nav-chip" id="btn-mobile-test-nav-chip" title="Questions Grid">
+                    <span id="mobile-test-qnum">1 / 27</span>
+                </button>
+                <button class="btn btn-primary mobile-test-btn-next" id="btn-mobile-test-next">
+                    Next →
+                </button>
+            </div>
         </nav>
 
         <!-- Mobile Filter Sheet / Drawer Modal -->
@@ -596,6 +724,317 @@
                     <p style="font-size: 0.78rem; color: var(--text-3); border-top: 1px solid var(--border); padding-top: 10px;">
                         College Board is a registered trademark of the College Entrance Examination Board. Desmos is a registered trademark of Desmos Studio PBC.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice Test Launcher Modal -->
+        <div class="modal-backdrop hidden" id="test-launcher-modal">
+            <div class="modal-card modal-card-wide test-launcher-card">
+                <div class="modal-header">
+                    <div>
+                        <h3 style="display: flex; align-items: center; gap: 8px;">
+                            <span>📝</span>
+                            <span>Practice Test Simulation</span>
+                            <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">Bluebook Environment</span>
+                        </h3>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-2);">
+                            Test under official Digital SAT conditions: authentic timing, countdown clock, mark for review, question navigator, Desmos calculator, and scaled score diagnostic report.
+                        </p>
+                    </div>
+                    <button class="icon-btn-small" id="btn-close-launcher">✕</button>
+                </div>
+
+                <div class="modal-body test-launcher-body">
+                    <div class="test-presets-grid">
+                        <!-- Preset 1: Full RW Module -->
+                        <div class="test-preset-card active-preset" data-preset="rw_module">
+                            <div class="preset-header">
+                                <span class="preset-badge">Reading &amp; Writing</span>
+                                <span class="preset-duration">⏱️ 32 min</span>
+                            </div>
+                            <h4 class="preset-title">Full R&amp;W Module</h4>
+                            <div class="preset-count">27 Questions</div>
+                            <p class="preset-desc">
+                                Authentic Bluebook balance: 7 Craft &amp; Structure, 7 Information &amp; Ideas, 7 Standard English Conventions, 6 Expression of Ideas.
+                            </p>
+                            <ul class="preset-tags">
+                                <li>✓ Timed 32:00 countdown</li>
+                                <li>✓ Flag for review</li>
+                                <li>✓ Scaled score (200–800)</li>
+                            </ul>
+                            <button type="button" class="btn btn-primary btn-start-preset" data-preset="rw_module">
+                                Start R&amp;W Module →
+                            </button>
+                        </div>
+
+                        <!-- Preset 2: Full Math Module -->
+                        <div class="test-preset-card" data-preset="math_module">
+                            <div class="preset-header">
+                                <span class="preset-badge" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">Math</span>
+                                <span class="preset-duration">⏱️ 35 min</span>
+                            </div>
+                            <h4 class="preset-title">Full Math Module</h4>
+                            <div class="preset-count">22 Questions</div>
+                            <p class="preset-desc">
+                                17 Multiple Choice &amp; 5 Student-Produced Responses (SPR) across Algebra, Advanced Math, Problem Solving, and Geometry.
+                            </p>
+                            <ul class="preset-tags">
+                                <li>✓ Official Desmos Calculator</li>
+                                <li>✓ Rough drawing scratchpad</li>
+                                <li>✓ Scaled score (200–800)</li>
+                            </ul>
+                            <button type="button" class="btn btn-primary btn-start-preset" data-preset="math_module">
+                                Start Math Module →
+                            </button>
+                        </div>
+
+                        <!-- Preset 3: Mini Diagnostic -->
+                        <div class="test-preset-card" data-preset="mini">
+                            <div class="preset-header">
+                                <span class="preset-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">Mini Test</span>
+                                <span class="preset-duration">⏱️ 15 min</span>
+                            </div>
+                            <h4 class="preset-title">Speed Diagnostic</h4>
+                            <div class="preset-count">10 Questions</div>
+                            <p class="preset-desc">
+                                Fast 10-question sprint across test sections to sharpen pacing under tight time constraints.
+                            </p>
+                            <div class="mini-subj-pills" style="display: flex; gap: 6px; margin: 10px 0;">
+                                <button type="button" class="pill-mini active" data-mini-subj="all">Mixed</button>
+                                <button type="button" class="pill-mini" data-mini-subj="rw">R&amp;W</button>
+                                <button type="button" class="pill-mini" data-mini-subj="math">Math</button>
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-start-preset" data-preset="mini">
+                                Start Mini Test →
+                            </button>
+                        </div>
+
+                        <!-- Preset 4: Custom Test -->
+                        <div class="test-preset-card custom-preset-card" data-preset="custom">
+                            <div class="preset-header">
+                                <span class="preset-badge" style="background: var(--surface-2); color: var(--text-2); border-color: var(--border-2);">Custom</span>
+                                <span class="preset-duration">Flexible</span>
+                            </div>
+                            <h4 class="preset-title">Custom Setup</h4>
+                            <div class="custom-fields-wrap">
+                                <div class="custom-field">
+                                    <label for="custom-test-subject">Section:</label>
+                                    <select id="custom-test-subject">
+                                        <option value="all">Mixed (R&amp;W + Math)</option>
+                                        <option value="rw">Reading &amp; Writing</option>
+                                        <option value="math">Math</option>
+                                    </select>
+                                </div>
+                                <div class="custom-field">
+                                    <label for="custom-test-count">Questions:</label>
+                                    <select id="custom-test-count">
+                                        <option value="15">15 Questions</option>
+                                        <option value="20" selected>20 Questions</option>
+                                        <option value="25">25 Questions</option>
+                                        <option value="30">30 Questions</option>
+                                    </select>
+                                </div>
+                                <div class="custom-field">
+                                    <label for="custom-test-time">Time Limit:</label>
+                                    <select id="custom-test-time">
+                                        <option value="20">20 Minutes</option>
+                                        <option value="30" selected>30 Minutes</option>
+                                        <option value="40">40 Minutes</option>
+                                        <option value="0">Untimed</option>
+                                    </select>
+                                </div>
+                                <div class="custom-field">
+                                    <label for="custom-test-diff">Difficulty:</label>
+                                    <select id="custom-test-diff">
+                                        <option value="all" selected>All Difficulties</option>
+                                        <option value="E">Easy Only</option>
+                                        <option value="M">Medium Only</option>
+                                        <option value="H">Hard Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-start-preset" data-preset="custom" style="margin-top: 10px;">
+                                Start Custom Test →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Navigator Grid Modal -->
+        <div class="modal-backdrop hidden" id="test-nav-modal">
+            <div class="modal-card test-nav-card">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="test-nav-modal-title">Question Navigator</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-3);" id="test-nav-modal-subtitle">Click any number to jump to that question</p>
+                    </div>
+                    <button class="icon-btn-small" id="btn-close-nav">✕</button>
+                </div>
+                <div class="modal-body test-nav-body">
+                    <div class="test-nav-legend">
+                        <div class="legend-item"><span class="legend-swatch answered"></span> Answered</div>
+                        <div class="legend-item"><span class="legend-swatch unanswered"></span> Unanswered</div>
+                        <div class="legend-item"><span class="legend-swatch flagged">🚩</span> For Review</div>
+                        <div class="legend-item"><span class="legend-swatch current"></span> Current</div>
+                    </div>
+                    <div class="test-nav-grid" id="test-nav-grid">
+                        <!-- Injected 1..N pills -->
+                    </div>
+                </div>
+                <div class="test-nav-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-nav-close">Close Navigator</button>
+                    <button type="button" class="btn btn-primary" id="btn-nav-to-review">Review &amp; Submit Module →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pre-Submission Review Modal -->
+        <div class="modal-backdrop hidden" id="test-review-modal">
+            <div class="modal-card modal-card-wide test-review-card">
+                <div class="modal-header">
+                    <div>
+                        <h3>Review Your Module</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 13px; color: var(--text-2);">
+                            Verify your answers before final grading. Once submitted, your answers cannot be modified.
+                        </p>
+                    </div>
+                    <button class="icon-btn-small" id="btn-close-review">✕</button>
+                </div>
+
+                <div class="modal-body test-review-body">
+                    <div class="test-review-stats-grid">
+                        <div class="review-stat-box">
+                            <span class="review-stat-val" id="review-stat-total">27</span>
+                            <span class="review-stat-lbl">Total Questions</span>
+                        </div>
+                        <div class="review-stat-box" style="border-color: rgba(34, 197, 94, 0.3);">
+                            <span class="review-stat-val" id="review-stat-answered" style="color: var(--green);">0</span>
+                            <span class="review-stat-lbl">Answered</span>
+                        </div>
+                        <div class="review-stat-box" id="review-stat-unanswered-box">
+                            <span class="review-stat-val" id="review-stat-unanswered" style="color: #f59e0b;">0</span>
+                            <span class="review-stat-lbl">Unanswered</span>
+                        </div>
+                        <div class="review-stat-box">
+                            <span class="review-stat-val" id="review-stat-flagged" style="color: #ef4444;">0</span>
+                            <span class="review-stat-lbl">Marked for Review 🚩</span>
+                        </div>
+                    </div>
+
+                    <div id="unanswered-alert" class="review-warning-alert hidden">
+                        ⚠️ <strong>You have unanswered questions.</strong> On the Digital SAT, there is no penalty for guessing. We recommend answering all questions!
+                    </div>
+
+                    <div class="test-nav-grid" id="test-review-grid" style="margin-top: 16px;">
+                        <!-- Grid of questions with clickable items -->
+                    </div>
+                </div>
+
+                <div class="test-review-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-return-to-test">
+                        ← Return to Test
+                    </button>
+                    <button type="button" class="btn btn-primary btn-submit-final" id="btn-submit-test-final">
+                        Submit &amp; View Score Report →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnostic Score Report Modal -->
+        <div class="modal-backdrop hidden" id="test-results-modal">
+            <div class="modal-card modal-card-wide test-results-card">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="test-results-title">Diagnostic Score Report</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 13px; color: var(--text-2);" id="test-results-subtitle">
+                            Practice Module Completed
+                        </p>
+                    </div>
+                    <button class="icon-btn-small" id="btn-close-results">✕</button>
+                </div>
+
+                <div class="modal-body test-results-body">
+                    <!-- Top Hero Score Banner -->
+                    <div class="score-hero-banner">
+                        <div class="score-hero-left">
+                            <div class="scaled-score-label">Estimated Section Score</div>
+                            <div class="scaled-score-val" id="result-scaled-score">740</div>
+                            <div class="scaled-score-scale">out of 800</div>
+                        </div>
+                        <div class="score-hero-divider"></div>
+                        <div class="score-metrics-grid">
+                            <div class="score-metric">
+                                <span class="metric-val" id="result-raw-score">25 / 27</span>
+                                <span class="metric-lbl">Raw Score</span>
+                            </div>
+                            <div class="score-metric">
+                                <span class="metric-val" id="result-accuracy">93%</span>
+                                <span class="metric-lbl">Accuracy</span>
+                            </div>
+                            <div class="score-metric">
+                                <span class="metric-val" id="result-time-spent">26m 14s</span>
+                                <span class="metric-lbl">Time Spent</span>
+                            </div>
+                            <div class="score-metric">
+                                <span class="metric-val" id="result-pacing">58s</span>
+                                <span class="metric-lbl">Avg / Question</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Domain Mastery Breakdown -->
+                    <div class="domain-mastery-section">
+                        <h4 class="section-heading">Domain Mastery Breakdown</h4>
+                        <div class="domain-bars-list" id="result-domain-bars">
+                            <!-- Injected bars per domain -->
+                        </div>
+                    </div>
+
+                    <!-- Question-by-Question Review Matrix -->
+                    <div class="question-matrix-section">
+                        <div class="matrix-header-row">
+                            <h4 class="section-heading" style="margin: 0;">Question Review Matrix</h4>
+                            <span style="font-size: 12px; color: var(--text-3);">Click any row to inspect step-by-step College Board explanations</span>
+                        </div>
+                        <div class="matrix-table-wrap">
+                            <table class="results-matrix-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Status</th>
+                                        <th>Your Answer</th>
+                                        <th>Correct Answer</th>
+                                        <th>Domain</th>
+                                        <th>Difficulty</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="result-matrix-tbody">
+                                    <!-- Injected table rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer test-results-footer">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary" id="btn-export-test-report">
+                            📥 Export Report (JSON)
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-review-all-questions">
+                            🔍 Review Questions in Quizzer
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-primary" id="btn-retake-new-test">
+                            🔄 Take Another Test
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

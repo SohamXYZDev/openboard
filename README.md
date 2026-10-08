@@ -38,11 +38,13 @@ While starting with the **Digital SAT®**, OpenBoard is architected from the gro
 Universal testing capabilities across OpenBoard modules:
 
 - **100% Free & Frictionless:** No credit cards, no subscriptions, no forced account signups, and zero third-party ads.
+- **Authentic Practice Test Simulation:** Full Bluebook module testing mode (`?mode=test`) with hideable countdown timer, 5-minute alerts, `Mark for Review 🚩` flagging, question navigator dropdown, and pre-submission review grid.
 - **Official Digital Testing Parity:** Direct Bluebook testing environment parity, including the official [Desmos Graphing Calculator API](https://www.desmos.com/api) engine.
 - **Native Dual-Mode Rough Scratchpad:** Multi-color freehand drawing canvas and typed formula scratchpad side-by-side with questions.
-- **Instant Scoring & Step-by-Step Rationales:** Immediate explanations, mathematical derivations, and option breakdown upon submission.
-- **Local-First Privacy & History:** All practice history, question bookmarks, and custom filter configurations are stored locally on your device in `localStorage`. Includes full **JSON history export**.
-- **Keyboard-Driven Workflow:** Fast desktop shortcuts (`A`/`B`/`C`/`D` to select, `Enter` to submit/advance, `S` to skip, `H` for history modal, `F` for filters).
+- **Zero-Spoiler Testing & 200–800 Diagnostic Score Reports:** Full test sessions withhold answers until submission, delivering authentic scaled module scores (200–800), pacing analytics (seconds/question), domain mastery breakdown bars, and step-by-step solution review.
+- **Instant Scoring & Step-by-Step Rationales (Drill Mode):** Immediate explanations, mathematical derivations, and option breakdown upon submission in drill mode.
+- **Local-First Privacy & History:** All practice history, question bookmarks, practice test score reports, and custom filter configurations are stored locally on your device in `localStorage`. Includes full **JSON score and history export**.
+- **Keyboard-Driven Workflow:** Fast desktop shortcuts (`A`/`B`/`C`/`D` to select, `Enter` to submit/advance, `M`/`F` to flag for review, `ArrowLeft`/`ArrowRight` to navigate test, `S` to skip, `H` for history modal).
 - **Distraction-Free Engineering:** Pure vanilla JavaScript frontend with zero heavy framework bloat (no React/Next.js/Vue overhead), sub-100ms load times, and fluid mobile responsiveness.
 - **Mathematical Rendering:** Powered by [MathJax 3](https://www.mathjax.org/) for crisp LaTeX and MathML formulas.
 
@@ -112,10 +114,13 @@ openboard/
 
 - [x] **Phase 1: Digital SAT® Engine**
   - [x] 3,770+ official question bank integration
+  - [x] Full Practice Test Simulation (RW & Math Modules, Mini Diagnostics, Custom Sets)
+  - [x] Bluebook HUD (countdown clock, hide/show toggle, 5-min alert, mark for review)
+  - [x] 200–800 scaled module scoring & domain mastery diagnostic analytics
   - [x] Embedded Desmos Graphing Calculator
   - [x] Freehand rough canvas & formula notes
   - [x] Local practice history tracking & review modal
-  - [x] JSON history export
+  - [x] JSON history & score report export
   - [x] Screen-reader (.sr-only) sanitization & formatting
 - [ ] **Phase 2: ACT® Module**
   - [ ] Four-section breakdown (English, Math, Reading, Science)

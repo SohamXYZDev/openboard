@@ -108,7 +108,7 @@ async function loadIndex() {
             const cached = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
             if (cached.questions && cached.questions.length > 0) {
                 console.log(`[Index] Loaded ${cached.questions.length} questions from local cache.`);
-                questionIndex = cached.questions;
+                questionIndex = cached.questions.filter(q => q && q.external_id);
                 liveItemIds = new Set(cached.liveItemIds || []);
                 domainInfo = cached.domainInfo || domainInfo;
                 return;
@@ -201,7 +201,10 @@ async function getQuestionDetail(externalId) {
     const cachedPath = path.join(QUESTIONS_CACHE_DIR, `${externalId}.json`);
     if (fs.existsSync(cachedPath)) {
         try {
-            return JSON.parse(fs.readFileSync(cachedPath, 'utf8'));
+            const data = JSON.parse(fs.readFileSync(cachedPath, 'utf8'));
+            if (data && (data.stem || data.stimulus)) {
+                return data;
+            }
         } catch (e) {}
     }
 
@@ -214,7 +217,9 @@ async function getQuestionDetail(externalId) {
         throw new Error(`Upstream error ${res.status}`);
     }
     const data = await res.json();
-    fs.writeFileSync(cachedPath, JSON.stringify(data));
+    if (data && (data.stem || data.stimulus)) {
+        fs.writeFileSync(cachedPath, JSON.stringify(data));
+    }
     return data;
 }
 
@@ -319,6 +324,7 @@ app.get(['/api/question/random', '/openboard/sat/api/question/random', '/openboa
         const excludeSet = new Set((excludeIds || '').split(',').map(s => s.trim()).filter(Boolean));
 
         const matchCandidate = (q, ignoreExclude = false) => {
+            if (!q || !q.external_id) return false;
             if (!ignoreExclude && excludeSet.has(q.external_id)) return false;
             if (excludeActive === 'true' && q.isLiveItem) return false;
             if (subject && subject !== 'all' && q.subject !== subject) return false;
@@ -432,7 +438,205 @@ app.get(['/api/question/:externalId', '/openboard/sat/api/question/:externalId',
     }
 });
 
-// 6. Stats Dashboard Route
+// 6. Practice Test Generator
+function sampleBalancedList(pool, count) {
+    if (!pool || pool.length === 0) return [];
+    if (pool.length <= count) return [...pool].sort(() => Math.random() - 0.5);
+    const targetE = Math.max(1, Math.round(count * 0.25));
+    const targetH = Math.max(1, Math.round(count * 0.25));
+    const targetM = Math.max(1, count - targetE - targetH);
+
+    const easy = pool.filter(q => q.difficulty === 'E').sort(() => Math.random() - 0.5);
+    const med = pool.filter(q => q.difficulty === 'M').sort(() => Math.random() - 0.5);
+    const hard = pool.filter(q => q.difficulty === 'H').sort(() => Math.random() - 0.5);
+
+    const picked = [
+        ...easy.slice(0, targetE),
+        ...med.slice(0, targetM),
+        ...hard.slice(0, targetH)
+    ];
+
+    if (picked.length < count) {
+        const pickedIds = new Set(picked.map(p => p.external_id));
+        const rem = pool.filter(q => !pickedIds.has(q.external_id)).sort(() => Math.random() - 0.5);
+        picked.push(...rem.slice(0, count - picked.length));
+    }
+    return picked.slice(0, count);
+}
+
+async function hydrateQuestionMeta(meta) {
+    if (!meta || !meta.external_id) return null;
+    try {
+        const detail = await getQuestionDetail(meta.external_id);
+        if (!detail || (!detail.stem && !detail.stimulus)) return null;
+
+        const letters = ['A', 'B', 'C', 'D'];
+        const options = (detail.answerOptions || []).map((opt, i) => ({
+            id: opt.id,
+            letter: letters[i] || String(i + 1),
+            content: fixRelativeUrls(opt.content)
+        }));
+
+        return {
+            external_id: meta.external_id,
+            questionId: meta.questionId,
+            type: detail.type || meta.type || 'mcq',
+            subject: meta.subject,
+            subjectLabel: meta.subject === 'rw' ? 'Reading & Writing' : 'Math',
+            domainCode: meta.domainCode,
+            domainDesc: meta.domainDesc,
+            skillCode: meta.skillCode,
+            skillDesc: meta.skillDesc,
+            difficulty: meta.difficulty,
+            difficultyLabel: meta.difficulty === 'E' ? 'Easy' : meta.difficulty === 'M' ? 'Medium' : 'Hard',
+            stimulus: fixRelativeUrls(detail.stimulus),
+            stem: fixRelativeUrls(detail.stem),
+            options,
+            correctAnswer: detail.correct_answer || [],
+            rationale: fixRelativeUrls(detail.rationale)
+        };
+    } catch (e) {
+        console.warn(`[hydrateQuestionMeta] Failed for ${meta.external_id}: ${e.message}`);
+        return null;
+    }
+}
+
+app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/api/test/generate', '/sat/api/test/generate'], async (req, res) => {
+    try {
+        const { preset = 'rw_module', subject, count, timeMinutes, difficulty, excludeActive = 'true' } = req.query;
+        const doExcludeActive = excludeActive === 'true';
+
+        let pool = questionIndex.filter(q => q && q.external_id);
+        if (doExcludeActive) {
+            pool = pool.filter(q => !q.isLiveItem);
+        }
+
+        let selectedMetas = [];
+        let title = '';
+        let testSubject = 'rw';
+        let allottedMinutes = 32;
+
+        if (preset === 'rw_module') {
+            testSubject = 'rw';
+            allottedMinutes = 32;
+            title = 'Digital SAT Reading & Writing Practice Module';
+            const rwPool = pool.filter(q => q.subject === 'rw');
+
+            const cas = sampleBalancedList(rwPool.filter(q => q.domainCode === 'CAS'), 7);
+            const ini = sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 7);
+            const sec = sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 7);
+            const eoi = sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 6);
+
+            selectedMetas = [...cas, ...ini, ...sec, ...eoi];
+        } else if (preset === 'math_module') {
+            testSubject = 'math';
+            allottedMinutes = 35;
+            title = 'Digital SAT Math Practice Module';
+            const mathPool = pool.filter(q => q.subject === 'math');
+
+            const h_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'H' && q.type === 'mcq'), 5);
+            const h_spr = sampleBalancedList(mathPool.filter(q => q.domainCode === 'H' && q.type === 'spr'), 2);
+            const p_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'P' && q.type === 'mcq'), 5);
+            const p_spr = sampleBalancedList(mathPool.filter(q => q.domainCode === 'P' && q.type === 'spr'), 2);
+            const q_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'Q' && q.type === 'mcq'), 3);
+            const q_spr = sampleBalancedList(mathPool.filter(q => q.domainCode === 'Q' && q.type === 'spr'), 1);
+            const s_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'S' && q.type === 'mcq'), 4);
+
+            const mcqs = [...h_mcq, ...p_mcq, ...q_mcq, ...s_mcq];
+            mcqs.sort((a, b) => {
+                const diffOrder = { E: 1, M: 2, H: 3 };
+                return (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2);
+            });
+
+            const sprs = [...h_spr, ...p_spr, ...q_spr];
+            sprs.sort((a, b) => {
+                const diffOrder = { E: 1, M: 2, H: 3 };
+                return (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2);
+            });
+
+            selectedMetas = [...mcqs, ...sprs];
+        } else if (preset === 'mini') {
+            const requestedSubj = subject === 'math' ? 'math' : (subject === 'rw' ? 'rw' : 'all');
+            testSubject = requestedSubj;
+            allottedMinutes = 15;
+            title = `Digital SAT Mini Practice Test (${requestedSubj === 'rw' ? 'R&W' : requestedSubj === 'math' ? 'Math' : 'Mixed'})`;
+
+            if (requestedSubj === 'rw') {
+                const rwPool = pool.filter(q => q.subject === 'rw');
+                selectedMetas = [
+                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'CAS'), 3),
+                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 3),
+                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 2),
+                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 2)
+                ];
+            } else if (requestedSubj === 'math') {
+                const mathPool = pool.filter(q => q.subject === 'math');
+                const mcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 8);
+                const sprs = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 2);
+                selectedMetas = [...mcqs, ...sprs];
+            } else {
+                const rwPool = pool.filter(q => q.subject === 'rw');
+                const mathPool = pool.filter(q => q.subject === 'math');
+                const rwItems = sampleBalancedList(rwPool, 5);
+                const mathMcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 4);
+                const mathSpr = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 1);
+                selectedMetas = [...rwItems, ...mathMcqs, ...mathSpr];
+            }
+        } else {
+            // Custom test
+            testSubject = subject || 'all';
+            let customPool = pool;
+            if (testSubject !== 'all') {
+                customPool = customPool.filter(q => q.subject === testSubject);
+            }
+            if (difficulty && difficulty !== 'all') {
+                customPool = customPool.filter(q => q.difficulty === difficulty);
+            }
+            const targetCount = Math.max(5, Math.min(50, parseInt(count) || 20));
+            allottedMinutes = parseInt(timeMinutes) || Math.round(targetCount * 1.5);
+            title = `Custom SAT Practice Test (${targetCount} Questions)`;
+
+            selectedMetas = sampleBalancedList(customPool, targetCount);
+        }
+
+        // Hydrate questions in parallel
+        let questions = await Promise.all(selectedMetas.map(hydrateQuestionMeta));
+        questions = questions.filter(Boolean);
+
+        // Fallback: If any failed to hydrate, pick replacements
+        if (questions.length < selectedMetas.length) {
+            const existingIds = new Set(questions.map(q => q.external_id));
+            const needed = selectedMetas.length - questions.length;
+            const fallbackPool = pool.filter(q => !existingIds.has(q.external_id) && (testSubject === 'all' || q.subject === testSubject));
+            const replacements = sampleBalancedList(fallbackPool, needed + 5);
+            for (const rep of replacements) {
+                if (questions.length >= selectedMetas.length) break;
+                const h = await hydrateQuestionMeta(rep);
+                if (h) questions.push(h);
+            }
+        }
+
+        // Assign 1-indexed numbers
+        questions = questions.map((q, idx) => ({ ...q, index: idx + 1 }));
+
+        res.json({
+            id: `test_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            title,
+            preset,
+            subject: testSubject,
+            subjectLabel: testSubject === 'rw' ? 'Reading & Writing' : (testSubject === 'math' ? 'Math' : 'Mixed Sections'),
+            totalQuestions: questions.length,
+            timeLimitMinutes: allottedMinutes,
+            timeLimitSeconds: allottedMinutes * 60,
+            questions
+        });
+    } catch (err) {
+        console.error('Error generating practice test:', err);
+        res.status(500).json({ error: 'Failed to generate practice test.' });
+    }
+});
+
+// 7. Stats Dashboard Route
 app.get(['/stats', '/openboard/sat/stats', '/openboard/stats', '/sat/stats', '/analytics', '/sat/analytics', '/openboard/sat/analytics'], (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'stats.html'));
 });
