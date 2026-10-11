@@ -480,6 +480,9 @@ async function hydrateQuestionMeta(meta) {
         return {
             external_id: meta.external_id,
             questionId: meta.questionId,
+            module: meta.module || 1,
+            moduleLabel: meta.moduleLabel || '',
+            section: meta.section || meta.subject,
             type: detail.type || meta.type || 'mcq',
             subject: meta.subject,
             subjectLabel: meta.subject === 'rw' ? 'Reading & Writing' : 'Math',
@@ -503,7 +506,7 @@ async function hydrateQuestionMeta(meta) {
 
 app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/api/test/generate', '/sat/api/test/generate'], async (req, res) => {
     try {
-        const { preset = 'rw_module', subject, count, timeMinutes, difficulty, excludeActive = 'true' } = req.query;
+        const { preset = 'rw_section', subject, count, timeMinutes, difficulty, excludeActive = 'true' } = req.query;
         const doExcludeActive = excludeActive === 'true';
 
         let pool = questionIndex.filter(q => q && q.external_id);
@@ -514,52 +517,111 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
         let selectedMetas = [];
         let title = '';
         let testSubject = 'rw';
-        let allottedMinutes = 32;
+        let allottedMinutes = 64;
 
-        if (preset === 'rw_module') {
+        // Helper to sample authentic 22-question Math module: 17 MCQ + 5 SPR sorted easy->hard
+        function sampleMathModule(sourcePool, modNum = 1, secPrefix = '') {
+            const h_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'H' && q.type === 'mcq'), 5);
+            const h_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'H' && q.type === 'spr'), 2);
+            const p_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'P' && q.type === 'mcq'), 5);
+            const p_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'P' && q.type === 'spr'), 2);
+            const q_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'Q' && q.type === 'mcq'), 3);
+            const q_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'Q' && q.type === 'spr'), 1);
+            const s_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'S' && q.type === 'mcq'), 4);
+
+            const mcqs = [...h_mcq, ...p_mcq, ...q_mcq, ...s_mcq];
+            const diffOrder = { E: 1, M: 2, H: 3 };
+            mcqs.sort((a, b) => (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2));
+
+            const sprs = [...h_spr, ...p_spr, ...q_spr];
+            sprs.sort((a, b) => (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2));
+
+            const label = secPrefix ? `${secPrefix} — Module ${modNum}` : `Module ${modNum}`;
+            return [...mcqs, ...sprs].map(q => ({
+                ...q,
+                module: modNum,
+                moduleLabel: label,
+                section: 'math'
+            }));
+        }
+
+        // Helper to sample authentic 27-question R&W module: 7 CAS, 7 INI, 7 SEC, 6 EOI
+        function sampleRwModule(sourcePool, modNum = 1, secPrefix = '') {
+            const cas = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'CAS'), 7);
+            const ini = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'INI'), 7);
+            const sec = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'SEC'), 7);
+            const eoi = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'EOI'), 6);
+
+            const label = secPrefix ? `${secPrefix} — Module ${modNum}` : `Module ${modNum}`;
+            return [...cas, ...ini, ...sec, ...eoi].map(q => ({
+                ...q,
+                module: modNum,
+                moduleLabel: label,
+                section: 'rw'
+            }));
+        }
+
+        if (preset === 'rw_section') {
             testSubject = 'rw';
-            allottedMinutes = 32;
-            title = 'Digital SAT Reading & Writing Practice Module';
+            allottedMinutes = 64; // 2 x 32 min
+            title = 'Digital SAT Reading & Writing Section (Full 54 Questions)';
             const rwPool = pool.filter(q => q.subject === 'rw');
 
-            const cas = sampleBalancedList(rwPool.filter(q => q.domainCode === 'CAS'), 7);
-            const ini = sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 7);
-            const sec = sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 7);
-            const eoi = sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 6);
+            const mod1 = sampleRwModule(rwPool, 1);
+            const pickedIds = new Set(mod1.map(q => q.external_id));
+            const rwPoolRem = rwPool.filter(q => !pickedIds.has(q.external_id));
+            const mod2 = sampleRwModule(rwPoolRem, 2);
 
-            selectedMetas = [...cas, ...ini, ...sec, ...eoi];
+            selectedMetas = [...mod1, ...mod2];
+        } else if (preset === 'math_section') {
+            testSubject = 'math';
+            allottedMinutes = 70; // 2 x 35 min
+            title = 'Digital SAT Math Section (Full 44 Questions)';
+            const mathPool = pool.filter(q => q.subject === 'math');
+
+            const mod1 = sampleMathModule(mathPool, 1);
+            const pickedIds = new Set(mod1.map(q => q.external_id));
+            const mathPoolRem = mathPool.filter(q => !pickedIds.has(q.external_id));
+            const mod2 = sampleMathModule(mathPoolRem, 2);
+
+            selectedMetas = [...mod1, ...mod2];
+        } else if (preset === 'full_exam') {
+            testSubject = 'all';
+            allottedMinutes = 134; // 64m RW + 70m Math
+            title = 'Digital SAT Full-Length Exam Simulation (98 Questions)';
+            const rwPool = pool.filter(q => q.subject === 'rw');
+            const mathPool = pool.filter(q => q.subject === 'math');
+
+            // RW Module 1 & 2
+            const rwMod1 = sampleRwModule(rwPool, 1, 'Section 1: R&W');
+            const rwPicked = new Set(rwMod1.map(q => q.external_id));
+            const rwPoolRem = rwPool.filter(q => !rwPicked.has(q.external_id));
+            const rwMod2 = sampleRwModule(rwPoolRem, 2, 'Section 1: R&W');
+
+            // Math Module 1 & 2
+            const mathMod1 = sampleMathModule(mathPool, 1, 'Section 2: Math');
+            const mathPicked = new Set(mathMod1.map(q => q.external_id));
+            const mathPoolRem = mathPool.filter(q => !mathPicked.has(q.external_id));
+            const mathMod2 = sampleMathModule(mathPoolRem, 2, 'Section 2: Math');
+
+            selectedMetas = [...rwMod1, ...rwMod2, ...mathMod1, ...mathMod2];
+        } else if (preset === 'rw_module') {
+            testSubject = 'rw';
+            allottedMinutes = 32;
+            title = 'Digital SAT Reading & Writing Practice Module (27 Questions)';
+            const rwPool = pool.filter(q => q.subject === 'rw');
+            selectedMetas = sampleRwModule(rwPool, 1);
         } else if (preset === 'math_module') {
             testSubject = 'math';
             allottedMinutes = 35;
-            title = 'Digital SAT Math Practice Module';
+            title = 'Digital SAT Math Practice Module (22 Questions)';
             const mathPool = pool.filter(q => q.subject === 'math');
-
-            const h_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'H' && q.type === 'mcq'), 5);
-            const h_spr = sampleBalancedList(mathPool.filter(q => q.domainCode === 'H' && q.type === 'spr'), 2);
-            const p_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'P' && q.type === 'mcq'), 5);
-            const p_spr = sampleBalancedList(mathPool.filter(q => q.domainCode === 'P' && q.type === 'spr'), 2);
-            const q_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'Q' && q.type === 'mcq'), 3);
-            const q_spr = sampleBalancedList(mathPool.filter(q => q.domainCode === 'Q' && q.type === 'spr'), 1);
-            const s_mcq = sampleBalancedList(mathPool.filter(q => q.domainCode === 'S' && q.type === 'mcq'), 4);
-
-            const mcqs = [...h_mcq, ...p_mcq, ...q_mcq, ...s_mcq];
-            mcqs.sort((a, b) => {
-                const diffOrder = { E: 1, M: 2, H: 3 };
-                return (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2);
-            });
-
-            const sprs = [...h_spr, ...p_spr, ...q_spr];
-            sprs.sort((a, b) => {
-                const diffOrder = { E: 1, M: 2, H: 3 };
-                return (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2);
-            });
-
-            selectedMetas = [...mcqs, ...sprs];
+            selectedMetas = sampleMathModule(mathPool, 1);
         } else if (preset === 'mini') {
             const requestedSubj = subject === 'math' ? 'math' : (subject === 'rw' ? 'rw' : 'all');
             testSubject = requestedSubj;
             allottedMinutes = 15;
-            title = `Digital SAT Mini Practice Test (${requestedSubj === 'rw' ? 'R&W' : requestedSubj === 'math' ? 'Math' : 'Mixed'})`;
+            title = `Digital SAT Mini Diagnostic (${requestedSubj === 'rw' ? 'R&W' : requestedSubj === 'math' ? 'Math' : 'Mixed'})`;
 
             if (requestedSubj === 'rw') {
                 const rwPool = pool.filter(q => q.subject === 'rw');
@@ -568,19 +630,19 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
                     ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 3),
                     ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 2),
                     ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 2)
-                ];
+                ].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
             } else if (requestedSubj === 'math') {
                 const mathPool = pool.filter(q => q.subject === 'math');
                 const mcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 8);
                 const sprs = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 2);
-                selectedMetas = [...mcqs, ...sprs];
+                selectedMetas = [...mcqs, ...sprs].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
             } else {
                 const rwPool = pool.filter(q => q.subject === 'rw');
                 const mathPool = pool.filter(q => q.subject === 'math');
                 const rwItems = sampleBalancedList(rwPool, 5);
                 const mathMcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 4);
                 const mathSpr = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 1);
-                selectedMetas = [...rwItems, ...mathMcqs, ...mathSpr];
+                selectedMetas = [...rwItems, ...mathMcqs, ...mathSpr].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
             }
         } else {
             // Custom test
@@ -592,11 +654,11 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             if (difficulty && difficulty !== 'all') {
                 customPool = customPool.filter(q => q.difficulty === difficulty);
             }
-            const targetCount = Math.max(5, Math.min(50, parseInt(count) || 20));
+            const targetCount = Math.max(5, Math.min(100, parseInt(count) || 20));
             allottedMinutes = parseInt(timeMinutes) || Math.round(targetCount * 1.5);
             title = `Custom SAT Practice Test (${targetCount} Questions)`;
 
-            selectedMetas = sampleBalancedList(customPool, targetCount);
+            selectedMetas = sampleBalancedList(customPool, targetCount).map(q => ({ ...q, module: 1, moduleLabel: 'Custom Set' }));
         }
 
         // Hydrate questions in parallel

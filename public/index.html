@@ -746,117 +746,209 @@
                 </div>
 
                 <div class="modal-body test-launcher-body">
-                    <div class="test-presets-grid">
-                        <!-- Preset 1: Full RW Module -->
-                        <div class="test-preset-card active-preset" data-preset="rw_module">
-                            <div class="preset-header">
-                                <span class="preset-badge">Reading &amp; Writing</span>
-                                <span class="preset-duration">⏱️ 32 min</span>
-                            </div>
-                            <h4 class="preset-title">Full R&amp;W Module</h4>
-                            <div class="preset-count">27 Questions</div>
-                            <p class="preset-desc">
-                                Authentic Bluebook balance: 7 Craft &amp; Structure, 7 Information &amp; Ideas, 7 Standard English Conventions, 6 Expression of Ideas.
-                            </p>
-                            <ul class="preset-tags">
-                                <li>✓ Timed 32:00 countdown</li>
-                                <li>✓ Flag for review</li>
-                                <li>✓ Scaled score (200–800)</li>
-                            </ul>
-                            <button type="button" class="btn btn-primary btn-start-preset" data-preset="rw_module">
-                                Start R&amp;W Module →
-                            </button>
-                        </div>
+                    <!-- Category Tabs -->
+                    <div class="test-launcher-tabs">
+                        <button type="button" class="launcher-tab active" data-tab="full-sections">
+                            <span>🏆</span> Full Section Exams
+                        </button>
+                        <button type="button" class="launcher-tab" data-tab="single-modules">
+                            <span>⏱️</span> Single Modules
+                        </button>
+                        <button type="button" class="launcher-tab" data-tab="custom-diagnostic">
+                            <span>⚡</span> Custom &amp; Speed
+                        </button>
+                    </div>
 
-                        <!-- Preset 2: Full Math Module -->
-                        <div class="test-preset-card" data-preset="math_module">
-                            <div class="preset-header">
-                                <span class="preset-badge" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">Math</span>
-                                <span class="preset-duration">⏱️ 35 min</span>
+                    <!-- TAB 1: FULL SECTIONS (REAL EXAM) -->
+                    <div class="launcher-tab-panel active" id="tab-panel-full-sections">
+                        <div class="test-presets-grid test-presets-grid-3">
+                            <!-- Preset: Full RW Section (54Q) -->
+                            <div class="test-preset-card featured-preset" data-preset="rw_section">
+                                <div class="preset-header">
+                                    <span class="preset-badge">R&amp;W • 2 Modules</span>
+                                    <span class="preset-duration">⏱️ 64 min</span>
+                                </div>
+                                <h4 class="preset-title">Full R&amp;W Section</h4>
+                                <div class="preset-count">54 Questions (2 Modules)</div>
+                                <p class="preset-desc">
+                                    Complete official Reading &amp; Writing section across 2 timed modules (27Q each). 14 Craft &amp; Structure, 14 Information &amp; Ideas, 14 Standard English Conventions, 12 Expression of Ideas.
+                                </p>
+                                <ul class="preset-tags">
+                                    <li>✓ 2 Modules (54 unique items)</li>
+                                    <li>✓ Timed 64:00 countdown</li>
+                                    <li>✓ Scaled section score (200–800)</li>
+                                </ul>
+                                <button type="button" class="btn btn-primary btn-start-preset" data-preset="rw_section">
+                                    Start Full R&amp;W Section (54Q) →
+                                </button>
                             </div>
-                            <h4 class="preset-title">Full Math Module</h4>
-                            <div class="preset-count">22 Questions</div>
-                            <p class="preset-desc">
-                                17 Multiple Choice &amp; 5 Student-Produced Responses (SPR) across Algebra, Advanced Math, Problem Solving, and Geometry.
-                            </p>
-                            <ul class="preset-tags">
-                                <li>✓ Official Desmos Calculator</li>
-                                <li>✓ Rough drawing scratchpad</li>
-                                <li>✓ Scaled score (200–800)</li>
-                            </ul>
-                            <button type="button" class="btn btn-primary btn-start-preset" data-preset="math_module">
-                                Start Math Module →
-                            </button>
-                        </div>
 
-                        <!-- Preset 3: Mini Diagnostic -->
-                        <div class="test-preset-card" data-preset="mini">
-                            <div class="preset-header">
-                                <span class="preset-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">Mini Test</span>
-                                <span class="preset-duration">⏱️ 15 min</span>
+                            <!-- Preset: Full Math Section (44Q) -->
+                            <div class="test-preset-card featured-preset" data-preset="math_section">
+                                <div class="preset-header">
+                                    <span class="preset-badge" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">Math • 2 Modules</span>
+                                    <span class="preset-duration">⏱️ 70 min</span>
+                                </div>
+                                <h4 class="preset-title">Full Math Section</h4>
+                                <div class="preset-count">44 Questions (2 Modules)</div>
+                                <p class="preset-desc">
+                                    Complete official Math section across 2 timed modules (22Q each). Exactly 34 Multiple-Choice &amp; 10 Student-Produced Responses (SPR) with Desmos graphing.
+                                </p>
+                                <ul class="preset-tags">
+                                    <li>✓ 2 Modules (34 MCQ + 10 SPR)</li>
+                                    <li>✓ Official Desmos Calculator</li>
+                                    <li>✓ Scaled section score (200–800)</li>
+                                </ul>
+                                <button type="button" class="btn btn-primary btn-start-preset" data-preset="math_section">
+                                    Start Full Math Section (44Q) →
+                                </button>
                             </div>
-                            <h4 class="preset-title">Speed Diagnostic</h4>
-                            <div class="preset-count">10 Questions</div>
-                            <p class="preset-desc">
-                                Fast 10-question sprint across test sections to sharpen pacing under tight time constraints.
-                            </p>
-                            <div class="mini-subj-pills" style="display: flex; gap: 6px; margin: 10px 0;">
-                                <button type="button" class="pill-mini active" data-mini-subj="all">Mixed</button>
-                                <button type="button" class="pill-mini" data-mini-subj="rw">R&amp;W</button>
-                                <button type="button" class="pill-mini" data-mini-subj="math">Math</button>
-                            </div>
-                            <button type="button" class="btn btn-secondary btn-start-preset" data-preset="mini">
-                                Start Mini Test →
-                            </button>
-                        </div>
 
-                        <!-- Preset 4: Custom Test -->
-                        <div class="test-preset-card custom-preset-card" data-preset="custom">
-                            <div class="preset-header">
-                                <span class="preset-badge" style="background: var(--surface-2); color: var(--text-2); border-color: var(--border-2);">Custom</span>
-                                <span class="preset-duration">Flexible</span>
+                            <!-- Preset: Complete SAT Exam (98Q) -->
+                            <div class="test-preset-card featured-preset" data-preset="full_exam">
+                                <div class="preset-header">
+                                    <span class="preset-badge" style="background: rgba(236, 72, 153, 0.15); color: #f472b6; border-color: rgba(236, 72, 153, 0.3);">Full 2-Section Exam</span>
+                                    <span class="preset-duration">⏱️ 134 min</span>
+                                </div>
+                                <h4 class="preset-title">Full-Length SAT Exam</h4>
+                                <div class="preset-count">98 Questions (All Sections)</div>
+                                <p class="preset-desc">
+                                    Take the complete Digital SAT test-day simulation: Full Reading &amp; Writing Section (54Q, 64m) followed by Full Math Section (44Q, 70m).
+                                </p>
+                                <ul class="preset-tags">
+                                    <li>✓ Complete test (R&amp;W + Math)</li>
+                                    <li>✓ Full Bluebook test conditions</li>
+                                    <li>✓ Composite score (400–1600)</li>
+                                </ul>
+                                <button type="button" class="btn btn-primary btn-start-preset" data-preset="full_exam" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
+                                    Start Full SAT Exam (98Q) →
+                                </button>
                             </div>
-                            <h4 class="preset-title">Custom Setup</h4>
-                            <div class="custom-fields-wrap">
-                                <div class="custom-field">
-                                    <label for="custom-test-subject">Section:</label>
-                                    <select id="custom-test-subject">
-                                        <option value="all">Mixed (R&amp;W + Math)</option>
-                                        <option value="rw">Reading &amp; Writing</option>
-                                        <option value="math">Math</option>
-                                    </select>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: SINGLE MODULES -->
+                    <div class="launcher-tab-panel" id="tab-panel-single-modules">
+                        <div class="test-presets-grid">
+                            <!-- Preset: Single RW Module -->
+                            <div class="test-preset-card" data-preset="rw_module">
+                                <div class="preset-header">
+                                    <span class="preset-badge">Reading &amp; Writing</span>
+                                    <span class="preset-duration">⏱️ 32 min</span>
                                 </div>
-                                <div class="custom-field">
-                                    <label for="custom-test-count">Questions:</label>
-                                    <select id="custom-test-count">
-                                        <option value="15">15 Questions</option>
-                                        <option value="20" selected>20 Questions</option>
-                                        <option value="25">25 Questions</option>
-                                        <option value="30">30 Questions</option>
-                                    </select>
-                                </div>
-                                <div class="custom-field">
-                                    <label for="custom-test-time">Time Limit:</label>
-                                    <select id="custom-test-time">
-                                        <option value="20">20 Minutes</option>
-                                        <option value="30" selected>30 Minutes</option>
-                                        <option value="40">40 Minutes</option>
-                                        <option value="0">Untimed</option>
-                                    </select>
-                                </div>
-                                <div class="custom-field">
-                                    <label for="custom-test-diff">Difficulty:</label>
-                                    <select id="custom-test-diff">
-                                        <option value="all" selected>All Difficulties</option>
-                                        <option value="E">Easy Only</option>
-                                        <option value="M">Medium Only</option>
-                                        <option value="H">Hard Only</option>
-                                    </select>
-                                </div>
+                                <h4 class="preset-title">R&amp;W Single Module</h4>
+                                <div class="preset-count">27 Questions</div>
+                                <p class="preset-desc">
+                                    Authentic single module balance: 7 Craft &amp; Structure, 7 Information &amp; Ideas, 7 Standard English Conventions, 6 Expression of Ideas.
+                                </p>
+                                <ul class="preset-tags">
+                                    <li>✓ Timed 32:00 countdown</li>
+                                    <li>✓ Flag for review</li>
+                                    <li>✓ Scaled score (200–800)</li>
+                                </ul>
+                                <button type="button" class="btn btn-secondary btn-start-preset" data-preset="rw_module">
+                                    Start R&amp;W Module (27Q) →
+                                </button>
                             </div>
-                            <button type="button" class="btn btn-secondary btn-start-preset" data-preset="custom" style="margin-top: 10px;">
-                                Start Custom Test →
-                            </button>
+
+                            <!-- Preset: Single Math Module -->
+                            <div class="test-preset-card" data-preset="math_module">
+                                <div class="preset-header">
+                                    <span class="preset-badge" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">Math</span>
+                                    <span class="preset-duration">⏱️ 35 min</span>
+                                </div>
+                                <h4 class="preset-title">Math Single Module</h4>
+                                <div class="preset-count">22 Questions</div>
+                                <p class="preset-desc">
+                                    17 Multiple Choice &amp; 5 Student-Produced Responses (SPR) across Algebra, Advanced Math, Problem Solving, and Geometry.
+                                </p>
+                                <ul class="preset-tags">
+                                    <li>✓ Official Desmos Calculator</li>
+                                    <li>✓ Rough drawing scratchpad</li>
+                                    <li>✓ Scaled score (200–800)</li>
+                                </ul>
+                                <button type="button" class="btn btn-secondary btn-start-preset" data-preset="math_module">
+                                    Start Math Module (22Q) →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: CUSTOM & SPEED -->
+                    <div class="launcher-tab-panel" id="tab-panel-custom-diagnostic">
+                        <div class="test-presets-grid">
+                            <!-- Preset: Mini Diagnostic -->
+                            <div class="test-preset-card" data-preset="mini">
+                                <div class="preset-header">
+                                    <span class="preset-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">Mini Test</span>
+                                    <span class="preset-duration">⏱️ 15 min</span>
+                                </div>
+                                <h4 class="preset-title">Speed Diagnostic</h4>
+                                <div class="preset-count">10 Questions</div>
+                                <p class="preset-desc">
+                                    Fast 10-question sprint across test sections to sharpen pacing under tight time constraints.
+                                </p>
+                                <div class="mini-subj-pills" style="display: flex; gap: 6px; margin: 10px 0;">
+                                    <button type="button" class="pill-mini active" data-mini-subj="all">Mixed</button>
+                                    <button type="button" class="pill-mini" data-mini-subj="rw">R&amp;W</button>
+                                    <button type="button" class="pill-mini" data-mini-subj="math">Math</button>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-start-preset" data-preset="mini">
+                                    Start Mini Test (10Q) →
+                                </button>
+                            </div>
+
+                            <!-- Preset: Custom Test -->
+                            <div class="test-preset-card custom-preset-card" data-preset="custom">
+                                <div class="preset-header">
+                                    <span class="preset-badge" style="background: var(--surface-2); color: var(--text-2); border-color: var(--border-2);">Custom</span>
+                                    <span class="preset-duration">Flexible</span>
+                                </div>
+                                <h4 class="preset-title">Custom Setup</h4>
+                                <div class="custom-fields-wrap">
+                                    <div class="custom-field">
+                                        <label for="custom-test-subject">Section:</label>
+                                        <select id="custom-test-subject">
+                                            <option value="all">Mixed (R&amp;W + Math)</option>
+                                            <option value="rw">Reading &amp; Writing</option>
+                                            <option value="math">Math</option>
+                                        </select>
+                                    </div>
+                                    <div class="custom-field">
+                                        <label for="custom-test-count">Questions:</label>
+                                        <select id="custom-test-count">
+                                            <option value="10">10 Questions</option>
+                                            <option value="15">15 Questions</option>
+                                            <option value="20" selected>20 Questions</option>
+                                            <option value="27">27 Questions (1 Module)</option>
+                                            <option value="44">44 Questions (Math Section)</option>
+                                            <option value="54">54 Questions (R&amp;W Section)</option>
+                                        </select>
+                                    </div>
+                                    <div class="custom-field">
+                                        <label for="custom-test-time">Time Limit:</label>
+                                        <select id="custom-test-time">
+                                            <option value="15">15 Minutes</option>
+                                            <option value="30" selected>30 Minutes</option>
+                                            <option value="45">45 Minutes</option>
+                                            <option value="60">60 Minutes</option>
+                                            <option value="0">Untimed</option>
+                                        </select>
+                                    </div>
+                                    <div class="custom-field">
+                                        <label for="custom-test-diff">Difficulty:</label>
+                                        <select id="custom-test-diff">
+                                            <option value="all" selected>All Difficulties</option>
+                                            <option value="E">Easy Only</option>
+                                            <option value="M">Medium Only</option>
+                                            <option value="H">Hard Only</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-start-preset" data-preset="custom" style="margin-top: 10px;">
+                                    Start Custom Test →
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -961,9 +1053,9 @@
                     <!-- Top Hero Score Banner -->
                     <div class="score-hero-banner">
                         <div class="score-hero-left">
-                            <div class="scaled-score-label">Estimated Section Score</div>
+                            <div class="scaled-score-label" id="result-score-label">Estimated Section Score</div>
                             <div class="scaled-score-val" id="result-scaled-score">740</div>
-                            <div class="scaled-score-scale">out of 800</div>
+                            <div class="scaled-score-scale" id="result-score-scale">out of 800</div>
                         </div>
                         <div class="score-hero-divider"></div>
                         <div class="score-metrics-grid">
@@ -982,6 +1074,24 @@
                             <div class="score-metric">
                                 <span class="metric-val" id="result-pacing">58s</span>
                                 <span class="metric-lbl">Avg / Question</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Composite Exam Section Subscores (for full_exam) -->
+                    <div class="score-subscores-banner hidden" id="result-subscores-banner">
+                        <div class="subscore-card">
+                            <span class="subscore-icon">📘</span>
+                            <div>
+                                <div class="subscore-name">Reading &amp; Writing Section</div>
+                                <div class="subscore-nums"><strong id="result-subscore-rw-scaled">720</strong> / 800 &bull; <span id="result-subscore-rw-raw">48/54</span> correct</div>
+                            </div>
+                        </div>
+                        <div class="subscore-card">
+                            <span class="subscore-icon">📐</span>
+                            <div>
+                                <div class="subscore-name">Math Section</div>
+                                <div class="subscore-nums"><strong id="result-subscore-math-scaled">740</strong> / 800 &bull; <span id="result-subscore-math-raw">40/44</span> correct</div>
                             </div>
                         </div>
                     </div>

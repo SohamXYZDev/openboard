@@ -38,10 +38,10 @@ While starting with the **Digital SAT®**, OpenBoard is architected from the gro
 Universal testing capabilities across OpenBoard modules:
 
 - **100% Free & Frictionless:** No credit cards, no subscriptions, no forced account signups, and zero third-party ads.
-- **Authentic Practice Test Simulation:** Full Bluebook module testing mode (`?mode=test`) with hideable countdown timer, 5-minute alerts, `Mark for Review 🚩` flagging, question navigator dropdown, and pre-submission review grid.
+- **Authentic Practice Test Simulation:** Full Bluebook testing mode (`?mode=test`) with **Full Section Exams** (54Q Reading & Writing Section across 2 modules, 44Q Math Section across 2 modules with 34 MCQ + 10 SPR), **Full-Length 98Q SAT Exam Simulation**, and single module drills. Includes hideable countdown timer, 5-minute alerts, `Mark for Review 🚩` flagging, question navigator dropdown, and pre-submission review grid.
 - **Official Digital Testing Parity:** Direct Bluebook testing environment parity, including the official [Desmos Graphing Calculator API](https://www.desmos.com/api) engine.
 - **Native Dual-Mode Rough Scratchpad:** Multi-color freehand drawing canvas and typed formula scratchpad side-by-side with questions.
-- **Zero-Spoiler Testing & 200–800 Diagnostic Score Reports:** Full test sessions withhold answers until submission, delivering authentic scaled module scores (200–800), pacing analytics (seconds/question), domain mastery breakdown bars, and step-by-step solution review.
+- **Zero-Spoiler Testing & 200–800 / 400–1600 Diagnostic Score Reports:** Full test sessions withhold answers until submission, delivering authentic scaled section scores (200–800) and composite exam scores (400–1600 with R&W and Math subscores), pacing analytics (seconds/question), domain mastery breakdown bars, and step-by-step solution review.
 - **Instant Scoring & Step-by-Step Rationales (Drill Mode):** Immediate explanations, mathematical derivations, and option breakdown upon submission in drill mode.
 - **Local-First Privacy & History:** All practice history, question bookmarks, practice test score reports, and custom filter configurations are stored locally on your device in `localStorage`. Includes full **JSON score and history export**.
 - **Keyboard-Driven Workflow:** Fast desktop shortcuts (`A`/`B`/`C`/`D` to select, `Enter` to submit/advance, `M`/`F` to flag for review, `ArrowLeft`/`ArrowRight` to navigate test, `S` to skip, `H` for history modal).
@@ -114,9 +114,9 @@ openboard/
 
 - [x] **Phase 1: Digital SAT® Engine**
   - [x] 3,770+ official question bank integration
-  - [x] Full Practice Test Simulation (RW & Math Modules, Mini Diagnostics, Custom Sets)
-  - [x] Bluebook HUD (countdown clock, hide/show toggle, 5-min alert, mark for review)
-  - [x] 200–800 scaled module scoring & domain mastery diagnostic analytics
+  - [x] Full Section Exams (54Q Full R&W Section, 44Q Full Math Section, 98Q Full Exam, Single Modules)
+  - [x] Bluebook HUD (countdown clock, hide/show toggle, 5-min alert, mark for review, module dividers)
+  - [x] Scaled scoring (200–800 section, 400–1600 composite) & domain mastery diagnostic analytics
   - [x] Embedded Desmos Graphing Calculator
   - [x] Freehand rough canvas & formula notes
   - [x] Local practice history tracking & review modal

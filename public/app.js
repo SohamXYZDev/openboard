@@ -1755,7 +1755,32 @@
         if (totalQuestions <= 0) return 200;
         const pct = rawScore / totalQuestions;
 
-        // Reading & Writing 27 Questions (College Board conversion curve)
+        // Full Reading & Writing Section 54 Questions (College Board conversion curve)
+        if ((preset === 'rw_section' || preset === 'rw') && totalQuestions === 54) {
+            const rwSectionCurve = [
+                200, 210, 220, 230, 240, 250, 260, 270, 280, 290, // 0-9
+                300, 310, 320, 330, 340, 350, 360, 370, 380, 390, // 10-19
+                400, 410, 420, 430, 440, 450, 460, 470, 480, 490, // 20-29
+                500, 510, 520, 530, 540, 550, 560, 570, 580, 590, // 30-39
+                600, 610, 620, 630, 650, 660, 680, 690, 710, 720, // 40-49
+                740, 750, 770, 780, 800                            // 50-54
+            ];
+            return rwSectionCurve[rawScore] !== undefined ? rwSectionCurve[rawScore] : Math.round(pct * 60) * 10 + 200;
+        }
+
+        // Full Math Section 44 Questions (College Board conversion curve)
+        if ((preset === 'math_section' || preset === 'math') && totalQuestions === 44) {
+            const mathSectionCurve = [
+                200, 210, 220, 230, 240, 250, 260, 270, 280, 290, // 0-9
+                310, 320, 330, 350, 360, 380, 390, 410, 420, 440, // 10-19
+                450, 470, 480, 500, 510, 530, 540, 560, 570, 590, // 20-29
+                610, 620, 640, 650, 670, 680, 700, 710, 730, 750, // 30-39
+                760, 780, 790, 800, 800                            // 40-44
+            ];
+            return mathSectionCurve[rawScore] !== undefined ? mathSectionCurve[rawScore] : Math.round(pct * 60) * 10 + 200;
+        }
+
+        // Reading & Writing 27 Questions Single Module (College Board conversion curve)
         if (preset === 'rw_module' && totalQuestions === 27) {
             const rwCurve = [
                 200, 220, 240, 260, 280, 310, 330, 350, 370, 400,
@@ -1765,7 +1790,7 @@
             return rwCurve[rawScore] !== undefined ? rwCurve[rawScore] : Math.round(pct * 600 + 200);
         }
 
-        // Math 22 Questions (College Board conversion curve)
+        // Math 22 Questions Single Module (College Board conversion curve)
         if (preset === 'math_module' && totalQuestions === 22) {
             const mathCurve = [
                 200, 220, 240, 270, 300, 330, 360, 390, 420, 450,
@@ -1977,7 +2002,11 @@
         errorState.classList.add('hidden');
         questionView.classList.remove('hidden');
 
-        if (metaSubject) metaSubject.textContent = q.subjectLabel || (q.subject === 'rw' ? 'Reading & Writing' : 'Math');
+        if (metaSubject) {
+            const baseSubj = q.subjectLabel || (q.subject === 'rw' ? 'Reading & Writing' : 'Math');
+            const modSuffix = (testSession.active || testSession.isReviewMode) && q.moduleLabel ? ` • ${q.moduleLabel}` : '';
+            metaSubject.textContent = baseSubj + modSuffix;
+        }
         if (metaDomain) metaDomain.textContent = q.domainDesc || 'General';
         if (metaSkill) metaSkill.textContent = q.skillDesc || '';
         if (metaDifficulty) {
@@ -2198,7 +2227,16 @@
         if (!testNavGrid) return;
         testNavGrid.innerHTML = '';
 
+        let lastModLabel = null;
         testSession.questions.forEach((q, i) => {
+            if (q.moduleLabel && q.moduleLabel !== lastModLabel) {
+                lastModLabel = q.moduleLabel;
+                const header = document.createElement('div');
+                header.className = 'nav-module-heading';
+                header.textContent = q.moduleLabel;
+                testNavGrid.appendChild(header);
+            }
+
             const pill = document.createElement('button');
             pill.type = 'button';
             pill.className = 'nav-grid-pill';
@@ -2237,7 +2275,16 @@
 
         if (testReviewGrid) {
             testReviewGrid.innerHTML = '';
+            let lastModLabel = null;
             testSession.questions.forEach((q, i) => {
+                if (q.moduleLabel && q.moduleLabel !== lastModLabel) {
+                    lastModLabel = q.moduleLabel;
+                    const header = document.createElement('div');
+                    header.className = 'nav-module-heading';
+                    header.textContent = q.moduleLabel;
+                    testReviewGrid.appendChild(header);
+                }
+
                 const pill = document.createElement('button');
                 pill.type = 'button';
                 pill.className = 'nav-grid-pill';
@@ -2265,6 +2312,10 @@
         closeAllModals();
 
         let rawScore = 0;
+        let rwRaw = 0;
+        let rwTotal = 0;
+        let mathRaw = 0;
+        let mathTotal = 0;
         const total = testSession.questions.length;
         const questionResults = [];
         const domainStats = {};
@@ -2283,6 +2334,15 @@
 
             if (isCorrect) rawScore++;
 
+            const isRw = (q.section === 'rw' || q.subject === 'rw');
+            if (isRw) {
+                rwTotal++;
+                if (isCorrect) rwRaw++;
+            } else {
+                mathTotal++;
+                if (isCorrect) mathRaw++;
+            }
+
             const dCode = q.domainCode || 'OTHER';
             const dName = q.domainDesc || 'General';
             if (!domainStats[dCode]) {
@@ -2293,6 +2353,7 @@
 
             questionResults.push({
                 index: i + 1,
+                moduleLabel: q.moduleLabel || '',
                 external_id: q.external_id,
                 questionId: q.questionId,
                 subject: q.subject,
@@ -2315,13 +2376,27 @@
             ? Math.max(1, testSession.timeLimitSeconds - testSession.timeRemaining)
             : Math.max(1, Math.round((Date.now() - testSession.startTime) / 1000));
         const avgSeconds = Math.round(timeSpent / total);
-        const scaledScore = calculateScaledScore(testSession.preset, rawScore, total);
+
+        let scaledScore = 0;
+        let subscores = null;
+        if (testSession.preset === 'full_exam') {
+            const rwScaled = calculateScaledScore('rw_section', rwRaw, rwTotal);
+            const mathScaled = calculateScaledScore('math_section', mathRaw, mathTotal);
+            scaledScore = rwScaled + mathScaled;
+            subscores = {
+                rw: { raw: rwRaw, total: rwTotal, scaled: rwScaled },
+                math: { raw: mathRaw, total: mathTotal, scaled: mathScaled }
+            };
+        } else {
+            scaledScore = calculateScaledScore(testSession.preset, rawScore, total);
+        }
 
         const resultsData = {
             id: `test_result_${Date.now()}`,
             title: testSession.title,
             preset: testSession.preset,
             scaledScore,
+            subscores,
             rawScore,
             total,
             accuracyPct,
@@ -2359,6 +2434,34 @@
         }
         if (resultPacing) resultPacing.textContent = `${r.avgSecondsPerQ}s`;
 
+        const resultScoreLabel = document.getElementById('result-score-label');
+        const resultScoreScale = document.getElementById('result-score-scale');
+        const resultSubscoresBanner = document.getElementById('result-subscores-banner');
+        const resultSubscoreRwScaled = document.getElementById('result-subscore-rw-scaled');
+        const resultSubscoreRwRaw = document.getElementById('result-subscore-rw-raw');
+        const resultSubscoreMathScaled = document.getElementById('result-subscore-math-scaled');
+        const resultSubscoreMathRaw = document.getElementById('result-subscore-math-raw');
+
+        if (r.preset === 'full_exam' && r.subscores) {
+            if (resultScoreLabel) resultScoreLabel.textContent = 'Estimated Composite Score';
+            if (resultScoreScale) resultScoreScale.textContent = 'out of 1600 (Composite)';
+            if (resultSubscoresBanner) resultSubscoresBanner.classList.remove('hidden');
+            if (resultSubscoreRwScaled) resultSubscoreRwScaled.textContent = r.subscores.rw.scaled;
+            if (resultSubscoreRwRaw) resultSubscoreRwRaw.textContent = `${r.subscores.rw.raw}/${r.subscores.rw.total}`;
+            if (resultSubscoreMathScaled) resultSubscoreMathScaled.textContent = r.subscores.math.scaled;
+            if (resultSubscoreMathRaw) resultSubscoreMathRaw.textContent = `${r.subscores.math.raw}/${r.subscores.math.total}`;
+        } else {
+            if (resultSubscoresBanner) resultSubscoresBanner.classList.add('hidden');
+            if (resultScoreLabel) {
+                resultScoreLabel.textContent = (r.preset === 'rw_section' || r.preset === 'math_section') ? 'Estimated Section Score' : 'Estimated Scaled Score';
+            }
+            if (resultScoreScale) {
+                if (r.preset === 'rw_section') resultScoreScale.textContent = 'out of 800 (Full 54Q Section)';
+                else if (r.preset === 'math_section') resultScoreScale.textContent = 'out of 800 (Full 44Q Section)';
+                else resultScoreScale.textContent = 'out of 800';
+            }
+        }
+
         if (resultDomainBars) {
             resultDomainBars.innerHTML = '';
             r.domainBreakdown.forEach(d => {
@@ -2390,8 +2493,10 @@
                     statusBadge = '<span class="review-status-chip wrong">✗ Incorrect</span>';
                 }
 
+                const modTag = q.moduleLabel ? `<br><small style="color:var(--text-3); font-size:10px;">${escapeHtml(q.moduleLabel)}</small>` : '';
+
                 tr.innerHTML = `
-                    <td><strong>#${q.index}</strong></td>
+                    <td><strong>#${q.index}</strong>${modTag}</td>
                     <td>${statusBadge}</td>
                     <td><strong class="${q.isCorrect ? 'text-green' : (q.isUnanswered ? 'text-muted' : 'text-danger')}">${escapeHtml(q.userAnswer || '-')}</strong></td>
                     <td><strong class="text-green">${escapeHtml(q.correctAnswer)}</strong></td>
@@ -2463,6 +2568,20 @@
         });
     }
 
+    // Test Launcher Tabs
+    const launcherTabs = document.querySelectorAll('.launcher-tab');
+    launcherTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.dataset.tab;
+            launcherTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            document.querySelectorAll('.launcher-tab-panel').forEach(p => {
+                p.classList.toggle('active', p.id === `tab-panel-${targetTab}`);
+            });
+        });
+    });
+
     let miniSelectedSubj = 'all';
     const miniPills = document.querySelectorAll('.pill-mini');
     miniPills.forEach(p => {
@@ -2476,7 +2595,13 @@
     document.querySelectorAll('.btn-start-preset').forEach(btn => {
         btn.addEventListener('click', () => {
             const preset = btn.dataset.preset;
-            if (preset === 'rw_module') {
+            if (preset === 'rw_section') {
+                startPracticeTest('rw_section');
+            } else if (preset === 'math_section') {
+                startPracticeTest('math_section');
+            } else if (preset === 'full_exam') {
+                startPracticeTest('full_exam');
+            } else if (preset === 'rw_module') {
                 startPracticeTest('rw_module');
             } else if (preset === 'math_module') {
                 startPracticeTest('math_module');
@@ -2721,7 +2846,12 @@
 
         loadFiltersCatalog().then(() => {
             if (modeParam === 'test') {
-                openTestLauncher();
+                const presetParam = urlParams.get('preset');
+                if (presetParam && ['rw_section', 'math_section', 'full_exam', 'rw_module', 'math_module', 'mini'].includes(presetParam)) {
+                    startPracticeTest(presetParam);
+                } else {
+                    openTestLauncher();
+                }
             } else {
                 loadNextQuestion(qidParam);
             }

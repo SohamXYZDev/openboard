@@ -2600,17 +2600,75 @@ kbd {
 
 /* ── Test Launcher Modal ── */
 .test-launcher-card {
-    max-width: 860px;
+    max-width: 960px;
 }
 
 .test-launcher-body {
     padding: 24px;
 }
 
+.test-launcher-tabs {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.launcher-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.launcher-tab:hover {
+    color: var(--text);
+    border-color: var(--border-2);
+    background: var(--surface-2);
+}
+
+.launcher-tab.active {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+}
+
+.launcher-tab-panel {
+    display: none;
+}
+
+.launcher-tab-panel.active {
+    display: block;
+}
+
 .test-presets-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+}
+
+.test-presets-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+@media (max-width: 900px) {
+    .test-presets-grid-3 {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 768px) {
@@ -2844,6 +2902,26 @@ kbd {
     font-size: 10px;
 }
 
+.nav-module-heading {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-2);
+    padding: 12px 4px 6px 4px;
+    border-bottom: 1px solid var(--border);
+    margin: 6px 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-module-heading:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
 .test-nav-footer {
     display: flex;
     align-items: center;
@@ -3018,6 +3096,51 @@ kbd {
     color: var(--text-3);
     text-transform: uppercase;
     margin-top: 2px;
+}
+
+/* ── Composite Exam Section Subscores ── */
+.score-subscores-banner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.subscore-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.subscore-icon {
+    font-size: 24px;
+}
+
+.subscore-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 3px;
+}
+
+.subscore-nums {
+    font-size: 14px;
+    color: var(--text);
+}
+
+.subscore-nums strong {
+    font-size: 18px;
+    color: #a5b4fc;
+}
+
+@media (max-width: 600px) {
+    .score-subscores-banner {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Domain Mastery Breakdown */
