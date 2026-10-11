@@ -42,6 +42,7 @@ Universal testing capabilities across OpenBoard modules:
 - **Official Digital Testing Parity:** Direct Bluebook testing environment parity, including the official [Desmos Graphing Calculator API](https://www.desmos.com/api) engine.
 - **Native Dual-Mode Rough Scratchpad:** Multi-color freehand drawing canvas and typed formula scratchpad side-by-side with questions.
 - **Zero-Spoiler Testing & 200–800 / 400–1600 Diagnostic Score Reports:** Full test sessions withhold answers until submission, delivering authentic scaled section scores (200–800) and composite exam scores (400–1600 with R&W and Math subscores), pacing analytics (seconds/question), domain mastery breakdown bars, and step-by-step solution review.
+- **Session Score Reset & Flexibility:** Ability to reset session accuracy back to 0/0 at any time directly from the taskbar and history modal.
 - **Instant Scoring & Step-by-Step Rationales (Drill Mode):** Immediate explanations, mathematical derivations, and option breakdown upon submission in drill mode.
 - **Local-First Privacy & History:** All practice history, question bookmarks, practice test score reports, and custom filter configurations are stored locally on your device in `localStorage`. Includes full **JSON score and history export**.
 - **Keyboard-Driven Workflow:** Fast desktop shortcuts (`A`/`B`/`C`/`D` to select, `Enter` to submit/advance, `M`/`F` to flag for review, `ArrowLeft`/`ArrowRight` to navigate test, `S` to skip, `H` for history modal).
@@ -49,6 +50,28 @@ Universal testing capabilities across OpenBoard modules:
 - **Mathematical Rendering:** Powered by [MathJax 3](https://www.mathjax.org/) for crisp LaTeX and MathML formulas.
 
 ---
+
+## 🧪 Practice Test Simulation Modes
+
+OpenBoard offers dedicated timed practice test modes engineered to match the authentic test-day experience:
+
+| Test Mode / Preset | Questions | Time Limit | Section / Composition | Scoring Scale |
+|---|---|---|---|---|
+| **Full R&W Section** | 54 Questions | 64 Minutes | 2 Modules (27Q each)<br>• Craft & Structure (14Q)<br>• Information & Ideas (14Q)<br>• Standard English Conventions (14Q)<br>• Expression of Ideas (12Q) | **200 – 800**<br>(Scaled Section Score) |
+| **Full Math Section** | 44 Questions | 70 Minutes | 2 Modules (22Q each)<br>• 34 Multiple Choice (MCQ)<br>• 10 Student-Produced Responses (SPR / Grid-in)<br>• Algebra, Advanced Math, Problem Solving & Geometry | **200 – 800**<br>(Scaled Section Score) |
+| **Full-Length SAT Exam** | 98 Questions | 134 Minutes | Complete 2-Section Test<br>• Full R&W Section (54Q, 64m)<br>• Full Math Section (44Q, 70m) | **400 – 1600**<br>(Composite Score + Section Subscores) |
+| **R&W Single Module** | 27 Questions | 32 Minutes | 1 Module balanced across reading and writing domains | **200 – 800**<br>(Scaled Module Score) |
+| **Math Single Module** | 22 Questions | 35 Minutes | 1 Module: 17 MCQ + 5 SPR questions with Desmos | **200 – 800**<br>(Scaled Module Score) |
+| **Speed Diagnostic** | 10 Questions | 15 Minutes | Quick sprint (Mixed, R&W, or Math) for pacing drills | Pacing & Accuracy |
+| **Custom Test Setup** | 10 – 54 Questions | Flexible | Custom subject, question count, difficulty, and timer | Scaled Diagnostic |
+
+### Key Test Environment Capabilities:
+- **Zero-Spoiler Testing:** Answers and rationales are strictly hidden during the test to simulate real test conditions.
+- **Mark for Review (🚩):** Flag challenging questions and jump back to them via the Question Navigator dropdown.
+- **Countdown Clock:** Authentic timing with an option to hide the clock until the final 5 minutes, which triggers an alert.
+- **Official Desmos Calculator:** Embedded Desmos interface configured to College Board SAT specifications.
+- **Interactive Pre-Submission Review Grid:** Visual review card highlighting all answered, unanswered, and flagged questions before final submission.
+- **Comprehensive Score Diagnostics:** Scaled score (200–800 or 400–1600), pacing metrics (seconds/question), domain mastery breakdown, and full question-by-question review with rationales.
 
 ## 🛠️ Tech Stack & Architecture
 

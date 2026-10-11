@@ -1811,6 +1811,17 @@
         questionView.classList.add('hidden');
         closeAllModals();
 
+        const loadingText = document.querySelector('#loading-state p');
+        if (loadingText) {
+            const label = preset === 'rw_section' ? 'Full Reading & Writing Section (54 Questions)'
+                : (preset === 'math_section' ? 'Full Math Section (44 Questions)'
+                : (preset === 'full_exam' ? 'Full-Length SAT Exam Simulation (98 Questions)'
+                : (preset === 'rw_module' ? 'Reading & Writing Module (27 Questions)'
+                : (preset === 'math_module' ? 'Math Module (22 Questions)'
+                : `${preset.replace(/_/g, ' ')} test`))));
+            loadingText.textContent = `Preparing ${label}...`;
+        }
+
         let url = `${API_BASE}/test/generate?preset=${encodeURIComponent(preset)}`;
         if (options.subject) url += `&subject=${encodeURIComponent(options.subject)}`;
         if (options.count) url += `&count=${encodeURIComponent(options.count)}`;
@@ -2571,10 +2582,11 @@
     // Test Launcher Tabs
     const launcherTabs = document.querySelectorAll('.launcher-tab');
     launcherTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const targetTab = tab.dataset.tab;
+        tab.addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            const targetTab = btn.dataset.tab;
             launcherTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+            btn.classList.add('active');
 
             document.querySelectorAll('.launcher-tab-panel').forEach(p => {
                 p.classList.toggle('active', p.id === `tab-panel-${targetTab}`);
@@ -2585,35 +2597,53 @@
     let miniSelectedSubj = 'all';
     const miniPills = document.querySelectorAll('.pill-mini');
     miniPills.forEach(p => {
-        p.addEventListener('click', () => {
+        p.addEventListener('click', (e) => {
+            e.stopPropagation();
             miniPills.forEach(el => el.classList.remove('active'));
             p.classList.add('active');
             miniSelectedSubj = p.dataset.miniSubj || 'all';
         });
     });
 
-    document.querySelectorAll('.btn-start-preset').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const preset = btn.dataset.preset;
-            if (preset === 'rw_section') {
-                startPracticeTest('rw_section');
-            } else if (preset === 'math_section') {
-                startPracticeTest('math_section');
-            } else if (preset === 'full_exam') {
-                startPracticeTest('full_exam');
-            } else if (preset === 'rw_module') {
-                startPracticeTest('rw_module');
-            } else if (preset === 'math_module') {
-                startPracticeTest('math_module');
-            } else if (preset === 'mini') {
-                startPracticeTest('mini', { subject: miniSelectedSubj });
-            } else if (preset === 'custom') {
-                const s = document.getElementById('custom-test-subject')?.value || 'all';
-                const c = document.getElementById('custom-test-count')?.value || '20';
-                const t = document.getElementById('custom-test-time')?.value || '30';
-                const d = document.getElementById('custom-test-diff')?.value || 'all';
-                startPracticeTest('custom', { subject: s, count: c, timeMinutes: t, difficulty: d });
+    function launchSelectedPreset(preset) {
+        if (!preset) return;
+        if (preset === 'rw_section') {
+            startPracticeTest('rw_section');
+        } else if (preset === 'math_section') {
+            startPracticeTest('math_section');
+        } else if (preset === 'full_exam') {
+            startPracticeTest('full_exam');
+        } else if (preset === 'rw_module') {
+            startPracticeTest('rw_module');
+        } else if (preset === 'math_module') {
+            startPracticeTest('math_module');
+        } else if (preset === 'mini') {
+            startPracticeTest('mini', { subject: miniSelectedSubj });
+        } else if (preset === 'custom') {
+            const s = document.getElementById('custom-test-subject')?.value || 'all';
+            const c = document.getElementById('custom-test-count')?.value || '20';
+            const t = document.getElementById('custom-test-time')?.value || '30';
+            const d = document.getElementById('custom-test-diff')?.value || 'all';
+            startPracticeTest('custom', { subject: s, count: c, timeMinutes: t, difficulty: d });
+        }
+    }
+
+    // Allow clicking the card container itself for non-custom presets
+    document.querySelectorAll('.test-preset-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('select, input, label, button, .mini-subj-pills')) return;
+            const preset = card.dataset.preset;
+            if (preset && preset !== 'custom') {
+                launchSelectedPreset(preset);
             }
+        });
+    });
+
+    document.querySelectorAll('.btn-start-preset').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const preset = btn.dataset.preset;
+            launchSelectedPreset(preset);
         });
     });
 
@@ -2844,18 +2874,19 @@
         initDesmos();
         initRoughPad();
 
-        loadFiltersCatalog().then(() => {
-            if (modeParam === 'test') {
-                const presetParam = urlParams.get('preset');
-                if (presetParam && ['rw_section', 'math_section', 'full_exam', 'rw_module', 'math_module', 'mini'].includes(presetParam)) {
-                    startPracticeTest(presetParam);
-                } else {
-                    openTestLauncher();
-                }
+        if (modeParam === 'test') {
+            const presetParam = urlParams.get('preset');
+            if (presetParam && ['rw_section', 'math_section', 'full_exam', 'rw_module', 'math_module', 'mini'].includes(presetParam)) {
+                startPracticeTest(presetParam);
             } else {
-                loadNextQuestion(qidParam);
+                openTestLauncher();
             }
-        });
+            loadFiltersCatalog();
+        } else {
+            loadFiltersCatalog().then(() => {
+                loadNextQuestion(qidParam);
+            });
+        }
     }
 
     init();

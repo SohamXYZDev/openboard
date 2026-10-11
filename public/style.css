@@ -2686,6 +2686,11 @@ kbd {
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.test-preset-card.custom-preset-card {
+    cursor: default;
 }
 
 .test-preset-card:hover {
