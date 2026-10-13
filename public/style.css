@@ -3272,3 +3272,13 @@ kbd {
     padding: 16px 24px;
     border-top: 1px solid var(--border);
 }
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+}

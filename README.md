@@ -67,6 +67,9 @@ OpenBoard offers dedicated timed practice test modes engineered to match the aut
 
 ### Key Test Environment Capabilities:
 - **Zero-Spoiler Testing:** Answers and rationales are strictly hidden during the test to simulate real test conditions.
+- **Accidental Navigation & Mobile Swipe Defense:** Traps browser back button and mobile edge swipes (`popstate`), prompting users before exiting to prevent accidental loss of test progress.
+- **Continuous In-Progress Autosave & 1-Click Resume:** Test sessions (questions, selected answers, flags, timer state) are continuously autosaved to local storage; prompt allows 1-click test resumption if page is reloaded or tab is closed.
+- **Automatic Practice History Archiving:** All answered questions (whether submitted normally or exited early) are automatically saved to local Practice History with full answer choices and official College Board rationales.
 - **Mark for Review (🚩):** Flag challenging questions and jump back to them via the Question Navigator dropdown.
 - **Countdown Clock:** Authentic timing with an option to hide the clock until the final 5 minutes, which triggers an alert.
 - **Official Desmos Calculator:** Embedded Desmos interface configured to College Board SAT specifications.

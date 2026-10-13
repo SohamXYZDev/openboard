@@ -100,7 +100,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
     <!-- Design System CSS -->
-    <link rel="stylesheet" href="style.css?v=9.1">
+    <link rel="stylesheet" href="style.css?v=9.2">
     <!-- MathJax for rendering math formulas and MathML -->
     <script>
         window.MathJax = {
@@ -1148,8 +1148,44 @@
                 </div>
             </div>
         </div>
+
+        <!-- In-Progress Practice Test Resume Modal -->
+        <div class="modal-backdrop hidden" id="test-resume-modal">
+            <div class="modal-card" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                        <span>⏱️</span>
+                        <span>Resume Practice Test</span>
+                    </h3>
+                    <button class="icon-btn-small" id="btn-close-resume-modal">✕</button>
+                </div>
+                <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--text-2);">
+                    <p style="margin: 0; line-height: 1.5;">
+                        We detected an in-progress practice test that was interrupted (from an accidental back swipe, navigation, or refresh):
+                    </p>
+                    <div style="background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-weight: 700; font-size: 15px; color: var(--text);" id="resume-test-title">Digital SAT Practice Test</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--text-2);">
+                            <span id="resume-test-progress">📍 Question 1 of 54 (0 answered)</span>
+                            <span id="resume-test-timer">⏱️ 64m remaining</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-3); margin: 0; line-height: 1.4;">
+                        You can jump right back to where you were, or save your answered questions to Practice History and return to drill mode.
+                    </p>
+                </div>
+                <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; padding: 14px 20px; border-top: 1px solid var(--border); flex-wrap: wrap;">
+                    <button type="button" class="btn btn-secondary" id="btn-discard-active-test" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">
+                        Save Answered &amp; Exit
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btn-confirm-resume-test" style="background: var(--accent);">
+                        ▶️ Resume Test
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="app.js?v=9.1"></script>
+    <script src="app.js?v=9.2"></script>
 </body>
 </html>

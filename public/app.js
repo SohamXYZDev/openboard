@@ -276,6 +276,16 @@
     const btnReviewAllQuestions = document.getElementById('btn-review-all-questions');
     const btnRetakeNewTest = document.getElementById('btn-retake-new-test');
 
+    // Test Resume Modal Elements
+    const testResumeModal = document.getElementById('test-resume-modal');
+    const btnCloseResumeModal = document.getElementById('btn-close-resume-modal');
+    const btnConfirmResumeTest = document.getElementById('btn-confirm-resume-test');
+    const btnDiscardActiveTest = document.getElementById('btn-discard-active-test');
+    const resumeTestTitle = document.getElementById('resume-test-title');
+    const resumeTestProgress = document.getElementById('resume-test-progress');
+    const resumeTestTimer = document.getElementById('resume-test-timer');
+    let pendingResumeSnapshot = null;
+
     // --- Stats & Timer Helpers ---
     function updateStatsDisplay() {
         const pct = stats.attempted > 0 ? Math.round((stats.correct / stats.attempted) * 100) : 0;
@@ -935,6 +945,7 @@
     function selectOption(letter) {
         if (testSession.active && !testSession.isReviewMode) {
             testSession.answers[testSession.currentIndex] = letter;
+            saveActiveTestSession();
             const allCards = optionsContainer.querySelectorAll('.option-card');
             allCards.forEach(card => {
                 if (card.dataset.letter === letter) {
@@ -1318,6 +1329,7 @@
                     <div class="history-top-row">
                         <span class="history-status-pill ${statusClass}">${statusText}</span>
                         <span class="history-q-id">ID: ${escapeHtml(item.questionId || '')}</span>
+                        ${item.source === 'test' ? '<span class="history-diff-badge" style="background: rgba(124, 110, 252, 0.15); color: var(--accent-light); border: 1px solid rgba(124, 110, 252, 0.3);">📝 Test</span>' : ''}
                         <span class="history-diff-badge diff-${diffCode}">${escapeHtml(item.difficulty || '')}</span>
                     </div>
                     <div class="history-meta">
@@ -1552,6 +1564,7 @@
         sprInput.addEventListener('input', () => {
             if (testSession.active && !testSession.isReviewMode) {
                 testSession.answers[testSession.currentIndex] = sprInput.value.trim();
+                saveActiveTestSession();
                 updateTestFooterStatus();
                 return;
             }
@@ -1735,7 +1748,8 @@
             testLauncherModal,
             testNavModal,
             testReviewModal,
-            testResultsModal
+            testResultsModal,
+            testResumeModal
         ];
         modals.forEach(m => {
             if (m) m.classList.add('hidden');
@@ -1805,6 +1819,217 @@
         return Math.min(800, Math.max(200, scaled));
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ACTIVE TEST AUTOSAVE, RESUME & BACK-GESTURE DEFENSE
+    // ══════════════════════════════════════════════════════════════
+
+    function saveActiveTestSession() {
+        if (!testSession.active || testSession.isSubmitted || !testSession.questions || !testSession.questions.length) {
+            return;
+        }
+        try {
+            const snapshot = {
+                version: 1,
+                preset: testSession.preset,
+                title: testSession.title,
+                questions: testSession.questions,
+                currentIndex: testSession.currentIndex,
+                answers: testSession.answers,
+                flags: testSession.flags,
+                startTime: testSession.startTime,
+                timeLimitSeconds: testSession.timeLimitSeconds,
+                timeRemaining: testSession.timeRemaining,
+                timerHidden: Boolean(testSession.timerHidden),
+                savedAt: Date.now()
+            };
+            localStorage.setItem('sat_active_test_session', JSON.stringify(snapshot));
+        } catch (e) {
+            console.warn('Failed to save active test session:', e);
+        }
+    }
+
+    function clearActiveTestSession() {
+        try {
+            localStorage.removeItem('sat_active_test_session');
+        } catch (e) {}
+    }
+
+    function restoreActiveTestSession(snapshot) {
+        if (!snapshot || !snapshot.questions || !snapshot.questions.length) return false;
+
+        let timeRemaining = snapshot.timeRemaining;
+        if (snapshot.timeLimitSeconds > 0 && snapshot.savedAt) {
+            const elapsed = Math.floor((Date.now() - snapshot.savedAt) / 1000);
+            if (elapsed > 0 && elapsed < 86400) {
+                timeRemaining = Math.max(0, timeRemaining - elapsed);
+            }
+        }
+
+        testSession = {
+            active: true,
+            preset: snapshot.preset || 'custom',
+            title: snapshot.title || 'Digital SAT Practice Module',
+            questions: snapshot.questions,
+            currentIndex: typeof snapshot.currentIndex === 'number' ? snapshot.currentIndex : 0,
+            answers: snapshot.answers || {},
+            flags: snapshot.flags || {},
+            startTime: snapshot.startTime || Date.now(),
+            timeLimitSeconds: snapshot.timeLimitSeconds || 0,
+            timeRemaining: timeRemaining,
+            timerInterval: null,
+            timerHidden: Boolean(snapshot.timerHidden),
+            isSubmitted: false,
+            isReviewMode: false,
+            results: null
+        };
+
+        closeAllModals();
+        activateTestUI();
+        trapBackNavigation();
+        startTestCountdown();
+        renderTestQuestion(testSession.currentIndex);
+        return true;
+    }
+
+    function recordTestAnswersToHistory(testSessionObj) {
+        if (!testSessionObj || !testSessionObj.questions || !testSessionObj.questions.length) return 0;
+        let addedCount = 0;
+        const now = Date.now();
+
+        testSessionObj.questions.forEach((q, idx) => {
+            const studentAns = (testSessionObj.answers && testSessionObj.answers[idx] !== undefined)
+                ? testSessionObj.answers[idx]
+                : '';
+            if (!studentAns || String(studentAns).trim() === '') return;
+
+            const correctAnswers = q.correctAnswer || [];
+            let isCorrect = false;
+            if (q.type === 'spr') {
+                isCorrect = checkSprAnswer(String(studentAns).trim(), correctAnswers);
+            } else {
+                const primaryCorrect = (correctAnswers[0] || '').toUpperCase();
+                isCorrect = Boolean(studentAns && String(studentAns).trim().toUpperCase() === primaryCorrect);
+            }
+
+            const existingIdx = history.findIndex(h => h.external_id === q.external_id);
+            if (existingIdx !== -1) {
+                history[existingIdx].userAnswer = String(studentAns).trim();
+                history[existingIdx].isCorrect = isCorrect;
+                history[existingIdx].correctAnswer = correctAnswers.join(', ');
+                history[existingIdx].timestamp = now;
+                history[existingIdx].source = 'test';
+                history[existingIdx].testTitle = testSessionObj.title || 'Practice Test';
+            } else {
+                const entry = {
+                    external_id: q.external_id,
+                    questionId: q.questionId || (q.external_id ? q.external_id.slice(0, 8) : `Q${idx + 1}`),
+                    subject: q.subject || (q.section === 'rw' ? 'rw' : 'math'),
+                    subjectLabel: q.subjectLabel || (q.subject === 'math' ? 'Math' : 'Reading & Writing'),
+                    domain: q.domainDesc || q.domainCode || 'General',
+                    difficulty: q.difficultyLabel || (q.difficulty === 'H' ? 'Hard' : (q.difficulty === 'M' ? 'Medium' : 'Easy')),
+                    difficultyCode: q.difficulty || 'M',
+                    format: q.type || 'mcq',
+                    isSkipped: false,
+                    isCorrect: isCorrect,
+                    userAnswer: String(studentAns).trim(),
+                    correctAnswer: correctAnswers.join(', '),
+                    timestamp: now,
+                    source: 'test',
+                    testTitle: testSessionObj.title || 'Practice Test'
+                };
+                history.unshift(entry);
+                addedCount++;
+            }
+        });
+
+        if (history.length > 200) {
+            history = history.slice(0, 200);
+        }
+
+        try {
+            localStorage.setItem('sat_quizzer_history', JSON.stringify(history));
+        } catch (e) {}
+
+        updateStatsDisplay();
+        renderHistoryList();
+        return addedCount;
+    }
+
+    function showResumePrompt(snapshot) {
+        if (!snapshot || !testResumeModal) return;
+        pendingResumeSnapshot = snapshot;
+        closeAllModals();
+
+        if (resumeTestTitle) {
+            resumeTestTitle.textContent = snapshot.title || 'Digital SAT Practice Test';
+        }
+        if (resumeTestProgress) {
+            const answered = Object.keys(snapshot.answers || {}).length;
+            const total = snapshot.questions ? snapshot.questions.length : 0;
+            const cur = (snapshot.currentIndex || 0) + 1;
+            resumeTestProgress.textContent = `📍 Question ${cur} of ${total} • ${answered} answered`;
+        }
+        if (resumeTestTimer) {
+            if (snapshot.timeLimitSeconds > 0) {
+                const elapsed = Math.floor((Date.now() - snapshot.savedAt) / 1000);
+                const rem = Math.max(0, snapshot.timeRemaining - (elapsed > 0 && elapsed < 86400 ? elapsed : 0));
+                const m = Math.floor(rem / 60);
+                const s = rem % 60;
+                resumeTestTimer.textContent = `⏱️ ${m}m ${s < 10 ? '0' : ''}${s}s remaining`;
+            } else {
+                resumeTestTimer.textContent = '⏱️ Untimed Practice';
+            }
+        }
+
+        testResumeModal.classList.remove('hidden');
+    }
+
+    function trapBackNavigation() {
+        try {
+            window.history.pushState({ openboard_test_active: true }, '', window.location.href);
+        } catch (e) {}
+    }
+
+    window.addEventListener('popstate', () => {
+        if (testSession.active && !testSession.isSubmitted) {
+            try {
+                window.history.pushState({ openboard_test_active: true }, '', window.location.href);
+            } catch (err) {}
+
+            const confirmExit = confirm(
+                '⚠️ Practice Test in Progress!\n\n' +
+                'Accidental back swipe or navigation detected. Your test is paused and safely saved.\n\n' +
+                '• Click "Cancel" to continue taking your test (no progress lost).\n' +
+                '• Click "OK" to exit (all answered questions will be saved to Practice History).'
+            );
+
+            if (confirmExit) {
+                exitTestToDrillMode(true);
+            }
+        }
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (testSession.active && !testSession.isSubmitted) {
+            saveActiveTestSession();
+            e.preventDefault();
+            e.returnValue = 'You have an active practice test in progress.';
+            return e.returnValue;
+        }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (testSession.active && !testSession.isSubmitted) {
+            saveActiveTestSession();
+        }
+    });
+
+    window.addEventListener('pagehide', () => {
+        if (testSession.active && !testSession.isSubmitted) {
+            saveActiveTestSession();
+        }
+    });
+
     async function startPracticeTest(preset, options = {}) {
         loadingState.classList.remove('hidden');
         errorState.classList.add('hidden');
@@ -1856,6 +2081,8 @@
             };
 
             activateTestUI();
+            trapBackNavigation();
+            saveActiveTestSession();
             startTestCountdown();
             renderTestQuestion(0);
         } catch (err) {
@@ -1889,9 +2116,14 @@
 
     function exitTestToDrillMode(force = false) {
         if (!force && testSession.active && !testSession.isSubmitted) {
-            const ok = confirm('Exit this practice test? Your current progress and unanswered questions will be discarded.');
+            const ok = confirm('Exit this practice test? Any questions you have answered will be saved to your Practice History.');
             if (!ok) return;
         }
+
+        if (testSession.active && !testSession.isSubmitted) {
+            recordTestAnswersToHistory(testSession);
+        }
+        clearActiveTestSession();
 
         stopTestCountdown();
         testSession.active = false;
@@ -1932,6 +2164,10 @@
             if (testSession.timeRemaining > 0) {
                 testSession.timeRemaining--;
                 updateTestTimerDisplay();
+
+                if (testSession.timeRemaining % 5 === 0) {
+                    saveActiveTestSession();
+                }
 
                 if (testSession.timeRemaining === 300) {
                     alert('⏱️ 5 Minutes Remaining in this module.');
@@ -1985,6 +2221,7 @@
         if (!testSession.active && !testSession.isReviewMode) return;
         const idx = testSession.currentIndex;
         testSession.flags[idx] = !testSession.flags[idx];
+        saveActiveTestSession();
 
         const isFlagged = Boolean(testSession.flags[idx]);
         if (btnTestFlag) {
@@ -2002,6 +2239,7 @@
         if (index < 0 || index >= testSession.questions.length) return;
 
         testSession.currentIndex = index;
+        saveActiveTestSession();
         const q = testSession.questions[index];
         currentQuestion = q;
 
@@ -2321,6 +2559,9 @@
         stopTestCountdown();
         testSession.isSubmitted = true;
         closeAllModals();
+
+        recordTestAnswersToHistory(testSession);
+        clearActiveTestSession();
 
         let rawScore = 0;
         let rwRaw = 0;
@@ -2736,6 +2977,43 @@
         btnReviewExit.addEventListener('click', () => exitTestToDrillMode(true));
     }
 
+    if (btnCloseResumeModal && testResumeModal) {
+        btnCloseResumeModal.addEventListener('click', () => {
+            testResumeModal.classList.add('hidden');
+            loadNextQuestion();
+        });
+    }
+    if (testResumeModal) {
+        testResumeModal.addEventListener('click', (e) => {
+            if (e.target === testResumeModal) {
+                testResumeModal.classList.add('hidden');
+                loadNextQuestion();
+            }
+        });
+    }
+    if (btnConfirmResumeTest) {
+        btnConfirmResumeTest.addEventListener('click', () => {
+            if (pendingResumeSnapshot) {
+                restoreActiveTestSession(pendingResumeSnapshot);
+                pendingResumeSnapshot = null;
+            }
+        });
+    }
+    if (btnDiscardActiveTest) {
+        btnDiscardActiveTest.addEventListener('click', () => {
+            if (pendingResumeSnapshot) {
+                const count = recordTestAnswersToHistory(pendingResumeSnapshot);
+                clearActiveTestSession();
+                pendingResumeSnapshot = null;
+                closeAllModals();
+                if (count > 0) {
+                    alert(`Saved ${count} answered question${count === 1 ? '' : 's'} to your Practice History.`);
+                }
+                loadNextQuestion();
+            }
+        });
+    }
+
     if (btnMobileTestCalc) btnMobileTestCalc.addEventListener('click', toggleDesmos);
     if (btnMobileTestPad) btnMobileTestPad.addEventListener('click', toggleRoughPad);
 
@@ -2874,7 +3152,25 @@
         initDesmos();
         initRoughPad();
 
-        if (modeParam === 'test') {
+        // Check for in-progress test session interrupted by back-swipe or reload
+        let hasActiveSavedSession = false;
+        try {
+            const savedActive = localStorage.getItem('sat_active_test_session');
+            if (savedActive) {
+                const snapshot = JSON.parse(savedActive);
+                if (snapshot && snapshot.questions && snapshot.questions.length && snapshot.savedAt && (Date.now() - snapshot.savedAt) < 172800000) {
+                    hasActiveSavedSession = true;
+                    pendingResumeSnapshot = snapshot;
+                } else {
+                    clearActiveTestSession();
+                }
+            }
+        } catch (e) {}
+
+        if (hasActiveSavedSession && pendingResumeSnapshot) {
+            showResumePrompt(pendingResumeSnapshot);
+            loadFiltersCatalog();
+        } else if (modeParam === 'test') {
             const presetParam = urlParams.get('preset');
             if (presetParam && ['rw_section', 'math_section', 'full_exam', 'rw_module', 'math_module', 'mini'].includes(presetParam)) {
                 startPracticeTest(presetParam);
