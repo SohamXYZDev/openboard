@@ -2368,6 +2368,15 @@ kbd {
     animation: pulseTimer 1s infinite;
 }
 
+.test-timer-box.timer-paused {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.test-timer-box.timer-paused .test-timer-clock {
+    color: #f59e0b;
+}
+
 @keyframes pulseTimer {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
@@ -2389,6 +2398,27 @@ kbd {
 .test-timer-hide-btn:hover {
     color: var(--text);
     background: rgba(255, 255, 255, 0.15);
+}
+
+.test-timer-pause-btn {
+    border: none;
+    background: rgba(124, 110, 252, 0.15);
+    color: var(--accent-light);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.test-timer-pause-btn:hover {
+    color: #ffffff;
+    background: var(--accent);
 }
 
 .test-hud-right {
@@ -2539,6 +2569,24 @@ kbd {
     border: 1px solid var(--border);
     padding: 4px 10px;
     border-radius: var(--radius-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+}
+
+.mobile-test-timer-chip:hover,
+.mobile-test-timer-chip:active {
+    background: var(--surface-2);
+    border-color: rgba(124, 110, 252, 0.4);
+}
+
+.mobile-test-pause-badge {
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.85;
 }
 
 .mobile-test-flag-chip {

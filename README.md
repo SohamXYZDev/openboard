@@ -45,7 +45,7 @@ Universal testing capabilities across OpenBoard modules:
 - **Session Score Reset & Flexibility:** Ability to reset session accuracy back to 0/0 at any time directly from the taskbar and history modal.
 - **Instant Scoring & Step-by-Step Rationales (Drill Mode):** Immediate explanations, mathematical derivations, and option breakdown upon submission in drill mode.
 - **Local-First Privacy & History:** All practice history, question bookmarks, practice test score reports, and custom filter configurations are stored locally on your device in `localStorage`. Includes full **JSON score and history export**.
-- **Keyboard-Driven Workflow:** Fast desktop shortcuts (`A`/`B`/`C`/`D` to select, `Enter` to submit/advance, `M`/`F` to flag for review, `ArrowLeft`/`ArrowRight` to navigate test, `S` to skip, `H` for history modal).
+- **Keyboard-Driven Workflow:** Fast desktop shortcuts (`A`/`B`/`C`/`D` to select, `Enter` to submit/advance, `M`/`F` to flag for review, `P` to pause/resume test timer, `ArrowLeft`/`ArrowRight` to navigate test, `S` to skip, `H` for history modal).
 - **Distraction-Free Engineering:** Pure vanilla JavaScript frontend with zero heavy framework bloat (no React/Next.js/Vue overhead), sub-100ms load times, and fluid mobile responsiveness.
 - **Mathematical Rendering:** Powered by [MathJax 3](https://www.mathjax.org/) for crisp LaTeX and MathML formulas.
 
@@ -69,6 +69,7 @@ OpenBoard offers dedicated timed practice test modes engineered to match the aut
 - **Zero-Spoiler Testing:** Answers and rationales are strictly hidden during the test to simulate real test conditions.
 - **Accidental Navigation & Mobile Swipe Defense:** Traps browser back button and mobile edge swipes (`popstate`), prompting users before exiting to prevent accidental loss of test progress.
 - **Continuous In-Progress Autosave & 1-Click Resume:** Test sessions (questions, selected answers, flags, timer state) are continuously autosaved to local storage; prompt allows 1-click test resumption if page is reloaded or tab is closed.
+- **Timer Pause & Resume (⏸️ / `P` hotkey):** Pause countdown clocks anytime on desktop or mobile. Safely blurs/obscures question text while paused to maintain test integrity and realistic pacing calculations; resumes with `P`, `Space`, or `Enter`.
 - **Automatic Practice History Archiving:** All answered questions (whether submitted normally or exited early) are automatically saved to local Practice History with full answer choices and official College Board rationales.
 - **Mark for Review (🚩):** Flag challenging questions and jump back to them via the Question Navigator dropdown.
 - **Countdown Clock:** Authentic timing with an option to hide the clock until the final 5 minutes, which triggers an alert.

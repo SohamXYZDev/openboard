@@ -187,8 +187,10 @@
         startTime: 0,
         timeLimitSeconds: 0,
         timeRemaining: 0,
+        elapsedSeconds: 0,
         timerInterval: null,
         timerHidden: false,
+        isPaused: false,
         isSubmitted: false,
         isReviewMode: false,
         results: null
@@ -285,6 +287,16 @@
     const resumeTestProgress = document.getElementById('resume-test-progress');
     const resumeTestTimer = document.getElementById('resume-test-timer');
     let pendingResumeSnapshot = null;
+
+    // Test Pause Modal Elements
+    const btnTestTimerPause = document.getElementById('btn-test-timer-pause');
+    const mobileTestTimerChip = document.getElementById('mobile-test-timer-chip');
+    const btnMobileTestPause = document.getElementById('btn-mobile-test-pause');
+    const testPauseModal = document.getElementById('test-pause-modal');
+    const btnResumeTimer = document.getElementById('btn-resume-timer');
+    const btnPauseExitTest = document.getElementById('btn-pause-exit-test');
+    const pauseModalQProgress = document.getElementById('pause-modal-q-progress');
+    const pauseModalTimerLeft = document.getElementById('pause-modal-timer-left');
 
     // --- Stats & Timer Helpers ---
     function updateStatsDisplay() {
@@ -1749,7 +1761,8 @@
             testNavModal,
             testReviewModal,
             testResultsModal,
-            testResumeModal
+            testResumeModal,
+            testPauseModal
         ];
         modals.forEach(m => {
             if (m) m.classList.add('hidden');
@@ -1839,7 +1852,9 @@
                 startTime: testSession.startTime,
                 timeLimitSeconds: testSession.timeLimitSeconds,
                 timeRemaining: testSession.timeRemaining,
+                elapsedSeconds: testSession.elapsedSeconds || 0,
                 timerHidden: Boolean(testSession.timerHidden),
+                isPaused: Boolean(testSession.isPaused),
                 savedAt: Date.now()
             };
             localStorage.setItem('sat_active_test_session', JSON.stringify(snapshot));
@@ -1854,11 +1869,64 @@
         } catch (e) {}
     }
 
+    function pausePracticeTest() {
+        if (!testSession.active || testSession.isSubmitted || testSession.isReviewMode || testSession.isPaused) {
+            return;
+        }
+
+        testSession.isPaused = true;
+        stopTestCountdown();
+        updateTestTimerDisplay();
+
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+        }
+
+        if (pauseModalQProgress) {
+            const answered = Object.keys(testSession.answers || {}).length;
+            const total = testSession.questions ? testSession.questions.length : 0;
+            const cur = (testSession.currentIndex || 0) + 1;
+            pauseModalQProgress.textContent = `Question ${cur} of ${total} (${answered} answered)`;
+        }
+
+        if (pauseModalTimerLeft) {
+            if (testSession.timeLimitSeconds > 0) {
+                const totalSecs = Math.max(0, testSession.timeRemaining);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                pauseModalTimerLeft.textContent = `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
+            } else {
+                pauseModalTimerLeft.textContent = 'Untimed Test';
+            }
+        }
+
+        if (testPauseModal) {
+            testPauseModal.classList.remove('hidden');
+        }
+
+        saveActiveTestSession();
+    }
+
+    function resumePracticeTest() {
+        if (!testSession.active || !testSession.isPaused) {
+            return;
+        }
+
+        testSession.isPaused = false;
+        if (testPauseModal) {
+            testPauseModal.classList.add('hidden');
+        }
+
+        updateTestTimerDisplay();
+        startTestCountdown();
+        saveActiveTestSession();
+    }
+
     function restoreActiveTestSession(snapshot) {
         if (!snapshot || !snapshot.questions || !snapshot.questions.length) return false;
 
         let timeRemaining = snapshot.timeRemaining;
-        if (snapshot.timeLimitSeconds > 0 && snapshot.savedAt) {
+        if (snapshot.timeLimitSeconds > 0 && snapshot.savedAt && !snapshot.isPaused) {
             const elapsed = Math.floor((Date.now() - snapshot.savedAt) / 1000);
             if (elapsed > 0 && elapsed < 86400) {
                 timeRemaining = Math.max(0, timeRemaining - elapsed);
@@ -1876,8 +1944,10 @@
             startTime: snapshot.startTime || Date.now(),
             timeLimitSeconds: snapshot.timeLimitSeconds || 0,
             timeRemaining: timeRemaining,
+            elapsedSeconds: snapshot.elapsedSeconds || 0,
             timerInterval: null,
             timerHidden: Boolean(snapshot.timerHidden),
+            isPaused: Boolean(snapshot.isPaused),
             isSubmitted: false,
             isReviewMode: false,
             results: null
@@ -1886,8 +1956,13 @@
         closeAllModals();
         activateTestUI();
         trapBackNavigation();
-        startTestCountdown();
         renderTestQuestion(testSession.currentIndex);
+
+        if (testSession.isPaused) {
+            pausePracticeTest();
+        } else {
+            startTestCountdown();
+        }
         return true;
     }
 
@@ -2073,8 +2148,10 @@
                 startTime: Date.now(),
                 timeLimitSeconds: data.timeLimitSeconds || 0,
                 timeRemaining: data.timeLimitSeconds || 0,
+                elapsedSeconds: 0,
                 timerInterval: null,
                 timerHidden: false,
+                isPaused: false,
                 isSubmitted: false,
                 isReviewMode: false,
                 results: null
@@ -2128,6 +2205,8 @@
         stopTestCountdown();
         testSession.active = false;
         testSession.isReviewMode = false;
+        testSession.isPaused = false;
+        if (testPauseModal) testPauseModal.classList.add('hidden');
         document.body.classList.remove('test-mode-active');
 
         if (headerDrillWrap) headerDrillWrap.classList.remove('hidden');
@@ -2153,16 +2232,28 @@
 
     function startTestCountdown() {
         stopTestCountdown();
+        if (testSession.isPaused) {
+            updateTestTimerDisplay();
+            return;
+        }
+
         if (testSession.timeLimitSeconds <= 0) {
-            if (testTimerDisplay) testTimerDisplay.textContent = 'Untimed';
-            if (mobileTestTimerDisplay) mobileTestTimerDisplay.textContent = 'Untimed';
+            updateTestTimerDisplay();
+            testSession.timerInterval = setInterval(() => {
+                if (!testSession.isPaused) {
+                    testSession.elapsedSeconds = (testSession.elapsedSeconds || 0) + 1;
+                }
+            }, 1000);
             return;
         }
 
         updateTestTimerDisplay();
         testSession.timerInterval = setInterval(() => {
+            if (testSession.isPaused) return;
+
             if (testSession.timeRemaining > 0) {
                 testSession.timeRemaining--;
+                testSession.elapsedSeconds = (testSession.elapsedSeconds || 0) + 1;
                 updateTestTimerDisplay();
 
                 if (testSession.timeRemaining % 5 === 0) {
@@ -2192,20 +2283,36 @@
     }
 
     function updateTestTimerDisplay() {
-        if (testSession.timeLimitSeconds <= 0) return;
+        if (btnTestTimerPause) {
+            btnTestTimerPause.textContent = testSession.isPaused ? '▶️ Resume' : '⏸️ Pause';
+            btnTestTimerPause.setAttribute('title', testSession.isPaused ? 'Resume test timer (Shortcut: P)' : 'Pause test timer (Shortcut: P)');
+        }
+        if (btnMobileTestPause) {
+            btnMobileTestPause.textContent = testSession.isPaused ? '▶️' : '⏸️';
+            btnMobileTestPause.setAttribute('title', testSession.isPaused ? 'Resume Timer' : 'Pause Timer');
+        }
+
+        if (testSession.timeLimitSeconds <= 0) {
+            const utText = testSession.isPaused ? '⏸️ Paused' : 'Untimed';
+            if (testTimerDisplay) testTimerDisplay.textContent = utText;
+            if (mobileTestTimerDisplay) mobileTestTimerDisplay.textContent = utText;
+            if (testTimerBox) testTimerBox.classList.toggle('timer-paused', Boolean(testSession.isPaused));
+            return;
+        }
         const totalSecs = Math.max(0, testSession.timeRemaining);
         const mins = Math.floor(totalSecs / 60).toString().padStart(2, '0');
         const secs = (totalSecs % 60).toString().padStart(2, '0');
         const formatted = `${mins}:${secs}`;
 
-        const displayText = testSession.timerHidden ? '--:--' : formatted;
+        const displayText = testSession.isPaused ? '⏸️ Paused' : (testSession.timerHidden ? '--:--' : formatted);
 
         if (testTimerDisplay) testTimerDisplay.textContent = displayText;
         if (mobileTestTimerDisplay) mobileTestTimerDisplay.textContent = displayText;
 
         if (testTimerBox) {
-            testTimerBox.classList.toggle('timer-warning', totalSecs <= 300 && totalSecs > 60);
-            testTimerBox.classList.toggle('timer-critical', totalSecs <= 60);
+            testTimerBox.classList.toggle('timer-warning', totalSecs <= 300 && totalSecs > 60 && !testSession.isPaused);
+            testTimerBox.classList.toggle('timer-critical', totalSecs <= 60 && !testSession.isPaused);
+            testTimerBox.classList.toggle('timer-paused', Boolean(testSession.isPaused));
         }
     }
 
@@ -2558,6 +2665,8 @@
     function submitPracticeTest() {
         stopTestCountdown();
         testSession.isSubmitted = true;
+        testSession.isPaused = false;
+        if (testPauseModal) testPauseModal.classList.add('hidden');
         closeAllModals();
 
         recordTestAnswersToHistory(testSession);
@@ -2626,7 +2735,7 @@
         const accuracyPct = total > 0 ? Math.round((rawScore / total) * 100) : 0;
         const timeSpent = testSession.timeLimitSeconds > 0
             ? Math.max(1, testSession.timeLimitSeconds - testSession.timeRemaining)
-            : Math.max(1, Math.round((Date.now() - testSession.startTime) / 1000));
+            : Math.max(1, testSession.elapsedSeconds || Math.round((Date.now() - testSession.startTime) / 1000));
         const avgSeconds = Math.round(timeSpent / total);
 
         let scaledScore = 0;
@@ -2891,6 +3000,25 @@
     if (btnTestFlag) btnTestFlag.addEventListener('click', toggleTestFlag);
     if (btnMobileTestFlag) btnMobileTestFlag.addEventListener('click', toggleTestFlag);
     if (btnTestTimerHide) btnTestTimerHide.addEventListener('click', toggleTestTimerVisibility);
+    if (btnTestTimerPause) {
+        btnTestTimerPause.addEventListener('click', () => {
+            if (testSession.isPaused) resumePracticeTest();
+            else pausePracticeTest();
+        });
+    }
+    if (mobileTestTimerChip) {
+        mobileTestTimerChip.addEventListener('click', () => {
+            if (testSession.isPaused) resumePracticeTest();
+            else pausePracticeTest();
+        });
+    }
+    if (btnMobileTestPause) {
+        btnMobileTestPause.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (testSession.isPaused) resumePracticeTest();
+            else pausePracticeTest();
+        });
+    }
     if (btnOpenNav) btnOpenNav.addEventListener('click', openTestNavigator);
     if (btnMobileOpenNav) btnMobileOpenNav.addEventListener('click', openTestNavigator);
     if (btnTestExit) btnTestExit.addEventListener('click', () => exitTestToDrillMode());
@@ -3017,6 +3145,21 @@
     if (btnMobileTestCalc) btnMobileTestCalc.addEventListener('click', toggleDesmos);
     if (btnMobileTestPad) btnMobileTestPad.addEventListener('click', toggleRoughPad);
 
+    if (btnResumeTimer) btnResumeTimer.addEventListener('click', resumePracticeTest);
+    if (btnPauseExitTest) {
+        btnPauseExitTest.addEventListener('click', () => {
+            if (testPauseModal) testPauseModal.classList.add('hidden');
+            exitTestToDrillMode(false);
+        });
+    }
+    if (testPauseModal) {
+        testPauseModal.addEventListener('click', (e) => {
+            if (e.target === testPauseModal) {
+                resumePracticeTest();
+            }
+        });
+    }
+
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
         const isInputActive = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
@@ -3043,6 +3186,23 @@
 
         // Active Test Mode Shortcuts
         if (testSession.active) {
+            // When test is paused, allow resuming or escaping, and suppress all answering/nav shortcuts
+            if (testSession.isPaused) {
+                if (key === 'P' || e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+                    e.preventDefault();
+                    resumePracticeTest();
+                    return;
+                }
+                return;
+            }
+
+            // Pause test toggle with 'P'
+            if (key === 'P') {
+                e.preventDefault();
+                pausePracticeTest();
+                return;
+            }
+
             if (['A', 'B', 'C', 'D'].includes(key) && currentQuestion?.type !== 'spr') {
                 selectOption(key);
                 return;
