@@ -247,6 +247,42 @@ app.get(['/api/filters', '/openboard/sat/api/filters', '/openboard/api/filters',
     });
 });
 
+const USER_HISTORY_FILE = path.join(CACHE_DIR, 'user_history.json');
+
+// 1.5 Sync Client Practice History
+app.post(['/api/history/sync', '/openboard/sat/api/history/sync', '/openboard/api/history/sync', '/sat/api/history/sync'], (req, res) => {
+    try {
+        const newItems = Array.isArray(req.body) ? req.body : (req.body?.history || []);
+        if (!Array.isArray(newItems) || newItems.length === 0) {
+            return res.json({ ok: true, count: 0 });
+        }
+
+        let existing = [];
+        if (fs.existsSync(USER_HISTORY_FILE)) {
+            try { existing = JSON.parse(fs.readFileSync(USER_HISTORY_FILE, 'utf8')); } catch(e) {}
+        }
+
+        const seen = new Set(existing.map(item => `${item.external_id}_${item.timestamp}`));
+        let added = 0;
+        for (const item of newItems) {
+            const key = `${item.external_id}_${item.timestamp}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                existing.push(item);
+                added++;
+            }
+        }
+
+        existing.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        fs.writeFileSync(USER_HISTORY_FILE, JSON.stringify(existing, null, 2));
+        console.log(`[History Sync] Received ${newItems.length} items, added ${added} new. Total stored: ${existing.length}`);
+        return res.json({ ok: true, added, total: existing.length });
+    } catch (err) {
+        console.error('[History Sync Error]', err);
+        return res.status(500).json({ error: 'Failed to sync history' });
+    }
+});
+
 // 2. Client Telemetry
 app.post(['/api/telemetry', '/openboard/sat/api/telemetry', '/openboard/api/telemetry', '/sat/api/telemetry'], (req, res) => {
     const { type, subject, correct, difficulty } = req.body || {};

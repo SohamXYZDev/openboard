@@ -1259,7 +1259,23 @@
             localStorage.setItem('sat_quizzer_history', JSON.stringify(history));
         } catch (e) {}
 
+        syncHistoryToServer();
         updateStatsDisplay();
+    }
+
+    function syncHistoryToServer() {
+        try {
+            const raw = localStorage.getItem('sat_quizzer_history');
+            if (!raw) return;
+            const items = JSON.parse(raw);
+            if (!Array.isArray(items) || items.length === 0) return;
+
+            fetch(`${API_BASE}/history/sync`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(items)
+            }).catch(() => {});
+        } catch (e) {}
     }
 
     function formatRelativeTime(ts) {
@@ -2025,6 +2041,7 @@
             localStorage.setItem('sat_quizzer_history', JSON.stringify(history));
         } catch (e) {}
 
+        syncHistoryToServer();
         updateStatsDisplay();
         renderHistoryList();
         return addedCount;
@@ -3308,6 +3325,7 @@
         if (mobileFilterExcludeActive) mobileFilterExcludeActive.checked = filters.excludeActive !== false;
 
         updateStatsDisplay();
+        syncHistoryToServer();
         startTimer();
         initDesmos();
         initRoughPad();
