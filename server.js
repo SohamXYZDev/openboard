@@ -475,16 +475,25 @@ app.get(['/api/question/:externalId', '/openboard/sat/api/question/:externalId',
 });
 
 // 6. Practice Test Generator
+function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 function sampleBalancedList(pool, count) {
     if (!pool || pool.length === 0) return [];
-    if (pool.length <= count) return [...pool].sort(() => Math.random() - 0.5);
+    if (pool.length <= count) return shuffleArray(pool);
     const targetE = Math.max(1, Math.round(count * 0.25));
     const targetH = Math.max(1, Math.round(count * 0.25));
     const targetM = Math.max(1, count - targetE - targetH);
 
-    const easy = pool.filter(q => q.difficulty === 'E').sort(() => Math.random() - 0.5);
-    const med = pool.filter(q => q.difficulty === 'M').sort(() => Math.random() - 0.5);
-    const hard = pool.filter(q => q.difficulty === 'H').sort(() => Math.random() - 0.5);
+    const easy = shuffleArray(pool.filter(q => q.difficulty === 'E'));
+    const med = shuffleArray(pool.filter(q => q.difficulty === 'M'));
+    const hard = shuffleArray(pool.filter(q => q.difficulty === 'H'));
 
     const picked = [
         ...easy.slice(0, targetE),
@@ -494,10 +503,10 @@ function sampleBalancedList(pool, count) {
 
     if (picked.length < count) {
         const pickedIds = new Set(picked.map(p => p.external_id));
-        const rem = pool.filter(q => !pickedIds.has(q.external_id)).sort(() => Math.random() - 0.5);
+        const rem = shuffleArray(pool.filter(q => !pickedIds.has(q.external_id)));
         picked.push(...rem.slice(0, count - picked.length));
     }
-    return picked.slice(0, count);
+    return shuffleArray(picked.slice(0, count));
 }
 
 async function hydrateQuestionMeta(meta) {
@@ -555,7 +564,7 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
         let testSubject = 'rw';
         let allottedMinutes = 64;
 
-        // Helper to sample authentic 22-question Math module: 17 MCQ + 5 SPR sorted easy->hard
+        // Helper to sample authentic 22-question Math module: 17 MCQ + 5 SPR with randomized difficulty
         function sampleMathModule(sourcePool, modNum = 1, secPrefix = '') {
             const h_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'H' && q.type === 'mcq'), 5);
             const h_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'H' && q.type === 'spr'), 2);
@@ -565,12 +574,9 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             const q_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'Q' && q.type === 'spr'), 1);
             const s_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'S' && q.type === 'mcq'), 4);
 
-            const mcqs = [...h_mcq, ...p_mcq, ...q_mcq, ...s_mcq];
-            const diffOrder = { E: 1, M: 2, H: 3 };
-            mcqs.sort((a, b) => (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2));
-
-            const sprs = [...h_spr, ...p_spr, ...q_spr];
-            sprs.sort((a, b) => (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2));
+            // Randomize questions so difficulty is unpredictable across the module
+            const mcqs = shuffleArray([...h_mcq, ...p_mcq, ...q_mcq, ...s_mcq]);
+            const sprs = shuffleArray([...h_spr, ...p_spr, ...q_spr]);
 
             const label = secPrefix ? `${secPrefix} — Module ${modNum}` : `Module ${modNum}`;
             return [...mcqs, ...sprs].map(q => ({
@@ -581,15 +587,19 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             }));
         }
 
-        // Helper to sample authentic 27-question R&W module: 7 CAS, 7 INI, 7 SEC, 6 EOI
+        // Helper to sample authentic 27-question R&W module: 7 CAS, 7 INI, 7 SEC, 6 EOI with randomized difficulty
         function sampleRwModule(sourcePool, modNum = 1, secPrefix = '') {
             const cas = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'CAS'), 7);
             const ini = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'INI'), 7);
             const sec = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'SEC'), 7);
             const eoi = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'EOI'), 6);
 
+            // Reading items (CAS & INI) and Writing items (SEC & EOI) with randomized difficulty
+            const readingItems = shuffleArray([...cas, ...ini]);
+            const writingItems = shuffleArray([...sec, ...eoi]);
+
             const label = secPrefix ? `${secPrefix} — Module ${modNum}` : `Module ${modNum}`;
-            return [...cas, ...ini, ...sec, ...eoi].map(q => ({
+            return [...readingItems, ...writingItems].map(q => ({
                 ...q,
                 module: modNum,
                 moduleLabel: label,
@@ -661,16 +671,15 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
 
             if (requestedSubj === 'rw') {
                 const rwPool = pool.filter(q => q.subject === 'rw');
-                selectedMetas = [
-                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'CAS'), 3),
-                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 3),
-                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 2),
-                    ...sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 2)
-                ].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
+                const cas = sampleBalancedList(rwPool.filter(q => q.domainCode === 'CAS'), 3);
+                const ini = sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 3);
+                const sec = sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 2);
+                const eoi = sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 2);
+                selectedMetas = shuffleArray([...cas, ...ini, ...sec, ...eoi]).map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
             } else if (requestedSubj === 'math') {
                 const mathPool = pool.filter(q => q.subject === 'math');
-                const mcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 8);
-                const sprs = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 2);
+                const mcqs = shuffleArray(sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 8));
+                const sprs = shuffleArray(sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 2));
                 selectedMetas = [...mcqs, ...sprs].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
             } else {
                 const rwPool = pool.filter(q => q.subject === 'rw');
@@ -678,7 +687,7 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
                 const rwItems = sampleBalancedList(rwPool, 5);
                 const mathMcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 4);
                 const mathSpr = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 1);
-                selectedMetas = [...rwItems, ...mathMcqs, ...mathSpr].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
+                selectedMetas = shuffleArray([...rwItems, ...mathMcqs, ...mathSpr]).map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
             }
         } else {
             // Custom test
@@ -694,7 +703,7 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             allottedMinutes = parseInt(timeMinutes) || Math.round(targetCount * 1.5);
             title = `Custom SAT Practice Test (${targetCount} Questions)`;
 
-            selectedMetas = sampleBalancedList(customPool, targetCount).map(q => ({ ...q, module: 1, moduleLabel: 'Custom Set' }));
+            selectedMetas = shuffleArray(sampleBalancedList(customPool, targetCount)).map(q => ({ ...q, module: 1, moduleLabel: 'Custom Set' }));
         }
 
         // Hydrate questions in parallel
