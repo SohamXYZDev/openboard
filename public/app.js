@@ -863,8 +863,11 @@
         metaDomain.textContent = meta.domainDesc || 'General';
         metaSkill.textContent = meta.skillDesc || '';
         
-        metaDifficulty.textContent = meta.difficultyLabel || 'Medium';
-        metaDifficulty.className = `badge badge-difficulty ${meta.difficulty === 'E' ? 'easy' : meta.difficulty === 'H' ? 'hard' : 'medium'}`;
+        if (metaDifficulty) {
+            metaDifficulty.classList.remove('hidden');
+            metaDifficulty.textContent = meta.difficultyLabel || 'Medium';
+            metaDifficulty.className = `badge badge-difficulty ${meta.difficulty === 'E' ? 'easy' : meta.difficulty === 'H' ? 'hard' : 'medium'}`;
+        }
 
         if (metaFormat) {
             if (data.type === 'spr') {
@@ -2188,6 +2191,8 @@
 
     function activateTestUI() {
         document.body.classList.add('test-mode-active');
+        document.body.classList.remove('review-mode-active');
+        if (metaDifficulty) metaDifficulty.classList.add('hidden');
         if (headerDrillWrap) headerDrillWrap.classList.add('hidden');
         if (testHud) testHud.classList.remove('hidden');
         if (testReviewHud) testReviewHud.classList.add('hidden');
@@ -2225,6 +2230,8 @@
         testSession.isPaused = false;
         if (testPauseModal) testPauseModal.classList.add('hidden');
         document.body.classList.remove('test-mode-active');
+        document.body.classList.remove('review-mode-active');
+        if (metaDifficulty) metaDifficulty.classList.remove('hidden');
 
         if (headerDrillWrap) headerDrillWrap.classList.remove('hidden');
         if (testHud) testHud.classList.add('hidden');
@@ -2383,8 +2390,13 @@
         if (metaDomain) metaDomain.textContent = q.domainDesc || 'General';
         if (metaSkill) metaSkill.textContent = q.skillDesc || '';
         if (metaDifficulty) {
-            metaDifficulty.textContent = q.difficultyLabel || 'Medium';
-            metaDifficulty.className = `badge badge-difficulty ${q.difficulty === 'E' ? 'easy' : q.difficulty === 'H' ? 'hard' : 'medium'}`;
+            if (testSession.active && !testSession.isReviewMode) {
+                metaDifficulty.classList.add('hidden');
+            } else {
+                metaDifficulty.classList.remove('hidden');
+                metaDifficulty.textContent = q.difficultyLabel || 'Medium';
+                metaDifficulty.className = `badge badge-difficulty ${q.difficulty === 'E' ? 'easy' : q.difficulty === 'H' ? 'hard' : 'medium'}`;
+            }
         }
         if (metaFormat) {
             if (q.type === 'spr') {
@@ -2898,6 +2910,8 @@
     function enterReviewMode(questionIndex = 0) {
         testResultsModal.classList.add('hidden');
         testSession.isReviewMode = true;
+        document.body.classList.add('review-mode-active');
+        if (metaDifficulty) metaDifficulty.classList.remove('hidden');
 
         if (headerDrillWrap) headerDrillWrap.classList.add('hidden');
         if (testHud) testHud.classList.add('hidden');

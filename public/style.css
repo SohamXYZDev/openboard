@@ -2638,11 +2638,12 @@ kbd {
     border-color: var(--accent);
 }
 
-/* In active test, hide green/red checkmarks and rationales */
-.test-mode-active .option-status-badge,
-.test-mode-active .spr-feedback,
-.test-mode-active #rationale-card,
-.test-mode-active #btn-jump-rationale {
+/* In active test, hide green/red checkmarks, rationales, and difficulty */
+.test-mode-active:not(.review-mode-active) .option-status-badge,
+.test-mode-active:not(.review-mode-active) .spr-feedback,
+.test-mode-active:not(.review-mode-active) #rationale-card,
+.test-mode-active:not(.review-mode-active) #btn-jump-rationale,
+.test-mode-active:not(.review-mode-active) #meta-difficulty {
     display: none !important;
 }
 
