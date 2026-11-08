@@ -100,7 +100,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
     <!-- Design System CSS -->
-    <link rel="stylesheet" href="style.css?v=9.5">
+    <link rel="stylesheet" href="style.css?v=9.6">
     <!-- MathJax for rendering math formulas and MathML -->
     <script>
         window.MathJax = {
@@ -177,6 +177,10 @@
                     <button type="button" class="test-flag-btn" id="btn-test-flag" title="Mark for Review (Shortcut: M)">
                         <span class="flag-icon" id="test-flag-icon">🚩</span>
                         <span class="flag-text" id="test-flag-text">Mark for Review</span>
+                    </button>
+                    <button type="button" class="test-tool-btn btn-test-eliminator active" id="btn-test-eliminator" title="Option Eliminator (Cross out choices) [Shortcut: E]">
+                        <span class="eliminator-symbol"><s>ABC</s></span>
+                        <span class="eliminator-text">Eliminate</span>
                     </button>
                 </div>
 
@@ -267,6 +271,9 @@
             </div>
             <div class="mobile-subject-pill" id="mobile-subject-badge">All SAT</div>
             <div class="mobile-actions">
+                <button class="mobile-icon-btn btn-mobile-eliminator active" id="btn-mobile-eliminator" aria-label="Option Eliminator" title="Option Eliminator (Cross out choices)">
+                    <span class="eliminator-symbol"><s>ABC</s></span>
+                </button>
                 <button class="mobile-icon-btn" id="btn-mobile-test-launch" aria-label="Practice Test" title="Start Timed Practice Test">
                     <span>📝</span>
                 </button>
@@ -298,6 +305,9 @@
             </div>
             <button class="mobile-test-flag-chip" id="btn-mobile-test-flag">
                 <span id="mobile-flag-icon">🚩</span> Flag
+            </button>
+            <button class="mobile-test-flag-chip btn-mobile-test-eliminator active" id="btn-mobile-test-eliminator" title="Option Eliminator (Cross out choices)">
+                <span class="eliminator-symbol"><s>ABC</s></span>
             </button>
             <div class="mobile-actions">
                 <button class="mobile-icon-btn hidden" id="btn-mobile-test-calc" aria-label="Calculator" title="Desmos Calculator">
@@ -347,6 +357,10 @@
                     <div class="meta-actions desktop-only">
                         <button class="icon-btn-small btn-calc-toggle hidden" id="btn-toggle-calc" title="Open Desmos Graphing Calculator">🧮 Calculator</button>
                         <button class="icon-btn-small btn-pad-toggle" id="btn-toggle-pad" title="Open Scratchpad / Rough Pad">📝 Rough Pad</button>
+                        <button class="icon-btn-small btn-eliminator-toggle active" id="btn-toggle-eliminator" title="Option Eliminator (Cross out choices) [Shortcut: E]">
+                            <span class="eliminator-symbol"><s>ABC</s></span>
+                            <span class="eliminator-label">Eliminate</span>
+                        </button>
                         <span class="question-id" id="meta-qid" title="Official College Board Question ID">ID: ----</span>
                         <button class="icon-btn-small" id="btn-copy-id" title="Copy Question ID">📋</button>
                         <button class="icon-btn-small" id="btn-toggle-bookmark" title="Save this question">🔖</button>
@@ -1220,6 +1234,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=9.5"></script>
+    <script src="app.js?v=9.6"></script>
 </body>
 </html>

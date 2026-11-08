@@ -184,6 +184,7 @@
         currentIndex: 0,
         answers: {},       // { [index]: 'A' | '12' }
         flags: {},         // { [index]: true }
+        eliminated: {},    // { [index]: ['A', 'C'] }
         startTime: 0,
         timeLimitSeconds: 0,
         timeRemaining: 0,
@@ -205,6 +206,7 @@
     const testHudTitle = document.getElementById('test-hud-title');
     const btnTestFlag = document.getElementById('btn-test-flag');
     const testFlagText = document.getElementById('test-flag-text');
+    const btnTestEliminator = document.getElementById('btn-test-eliminator');
     const testTimerBox = document.getElementById('test-timer-box');
     const testTimerDisplay = document.getElementById('test-timer-display');
     const btnTestTimerHide = document.getElementById('btn-test-timer-hide');
@@ -233,6 +235,8 @@
     const mobileTestTopBar = document.getElementById('mobile-test-top-bar');
     const mobileTestTimerDisplay = document.getElementById('mobile-test-timer-display');
     const btnMobileTestFlag = document.getElementById('btn-mobile-test-flag');
+    const btnMobileTestEliminator = document.getElementById('btn-mobile-test-eliminator');
+    const btnMobileEliminator = document.getElementById('btn-mobile-eliminator');
     const btnMobileOpenNav = document.getElementById('btn-mobile-open-nav');
     const btnMobileTestExit = document.getElementById('btn-mobile-test-exit');
     const btnMobileTestCalc = document.getElementById('btn-mobile-test-calc');
@@ -431,6 +435,111 @@
         const g = (num >> 8) & 255;
         const b = num & 255;
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // --- Option Eliminator (Bluebook Style) ---
+    const btnToggleEliminator = document.getElementById('btn-toggle-eliminator');
+    let isEliminatorActive = localStorage.getItem('sat_quizzer_option_eliminator') !== 'false';
+    let drillEliminated = new Set();
+
+    function updateEliminatorUI() {
+        const allToggleBtns = [btnToggleEliminator, btnTestEliminator, btnMobileEliminator, btnMobileTestEliminator].filter(Boolean);
+        allToggleBtns.forEach(btn => {
+            btn.classList.toggle('active', isEliminatorActive);
+        });
+        if (optionsContainer) {
+            optionsContainer.classList.toggle('eliminator-mode', isEliminatorActive);
+        }
+    }
+
+    function toggleOptionEliminatorTool() {
+        isEliminatorActive = !isEliminatorActive;
+        try {
+            localStorage.setItem('sat_quizzer_option_eliminator', String(isEliminatorActive));
+        } catch (e) {}
+        updateEliminatorUI();
+    }
+
+    function setEliminatorToolAvailability(isAvailable) {
+        const allToggleBtns = [btnToggleEliminator, btnTestEliminator, btnMobileEliminator, btnMobileTestEliminator].filter(Boolean);
+        allToggleBtns.forEach(btn => {
+            btn.classList.toggle('hidden', !isAvailable);
+        });
+    }
+
+    function toggleEliminateOption(letter, forceState) {
+        if (!letter) return;
+        const targetLetter = letter.toUpperCase();
+
+        if (testSession.active && !testSession.isReviewMode) {
+            const idx = testSession.currentIndex;
+            if (!testSession.eliminated) testSession.eliminated = {};
+            if (!Array.isArray(testSession.eliminated[idx])) testSession.eliminated[idx] = [];
+            
+            const list = testSession.eliminated[idx];
+            const isElim = list.includes(targetLetter);
+            const shouldEliminate = (typeof forceState === 'boolean') ? forceState : !isElim;
+
+            if (shouldEliminate && !isElim) {
+                list.push(targetLetter);
+                if (testSession.answers[idx] === targetLetter) {
+                    delete testSession.answers[idx];
+                    updateTestFooterStatus();
+                }
+            } else if (!shouldEliminate && isElim) {
+                const pos = list.indexOf(targetLetter);
+                if (pos !== -1) list.splice(pos, 1);
+            }
+
+            saveActiveTestSession();
+
+            const allCards = optionsContainer.querySelectorAll('.option-card');
+            allCards.forEach(card => {
+                if (card.dataset.letter === targetLetter) {
+                    if (shouldEliminate) {
+                        card.classList.add('eliminated');
+                        card.classList.remove('selected');
+                        const btn = card.querySelector('.option-eliminate-btn');
+                        if (btn) btn.title = `Restore option ${targetLetter}`;
+                    } else {
+                        card.classList.remove('eliminated');
+                        const btn = card.querySelector('.option-eliminate-btn');
+                        if (btn) btn.title = `Eliminate option ${targetLetter}`;
+                    }
+                }
+            });
+            return;
+        }
+
+        if (isSubmitted) return;
+        const isElim = drillEliminated.has(targetLetter);
+        const shouldEliminate = (typeof forceState === 'boolean') ? forceState : !isElim;
+
+        if (shouldEliminate && !isElim) {
+            drillEliminated.add(targetLetter);
+            if (selectedOption === targetLetter) {
+                selectedOption = null;
+                setActionButtonsText('Check Answer', true);
+            }
+        } else if (!shouldEliminate && isElim) {
+            drillEliminated.delete(targetLetter);
+        }
+
+        const allCards = optionsContainer.querySelectorAll('.option-card');
+        allCards.forEach(card => {
+            if (card.dataset.letter === targetLetter) {
+                if (shouldEliminate) {
+                    card.classList.add('eliminated');
+                    card.classList.remove('selected');
+                    const btn = card.querySelector('.option-eliminate-btn');
+                    if (btn) btn.title = `Restore option ${targetLetter}`;
+                } else {
+                    card.classList.remove('eliminated');
+                    const btn = card.querySelector('.option-eliminate-btn');
+                    if (btn) btn.title = `Eliminate option ${targetLetter}`;
+                }
+            }
+        });
     }
 
     // --- Desmos Controller ---
@@ -797,6 +906,7 @@
     async function loadNextQuestion(specificId = null) {
         isSubmitted = false;
         selectedOption = null;
+        drillEliminated.clear();
         currentQuestion = null;
 
         loadingState.classList.remove('hidden');
@@ -918,9 +1028,11 @@
         if (data.type === 'spr') {
             optionsContainer.classList.add('hidden');
             sprContainer.classList.remove('hidden');
+            setEliminatorToolAvailability(false);
         } else {
             sprContainer.classList.add('hidden');
             optionsContainer.classList.remove('hidden');
+            setEliminatorToolAvailability(true);
 
             // Render MCQ Options
             optionsContainer.innerHTML = '';
@@ -929,13 +1041,32 @@
                 card.className = 'option-card';
                 card.dataset.letter = opt.letter;
 
+                const isEliminated = drillEliminated.has(opt.letter);
+                if (isEliminated) {
+                    card.classList.add('eliminated');
+                }
+
                 card.innerHTML = `
                     <div class="option-letter">${opt.letter}</div>
                     <div class="option-body">${cleanQuestionHtml(opt.content)}</div>
+                    <button type="button" class="option-eliminate-btn" data-letter="${opt.letter}" title="${isEliminated ? 'Restore option ' + opt.letter : 'Eliminate option ' + opt.letter}" aria-label="Eliminate option ${opt.letter}">
+                        <span class="eliminate-cross">✕</span>
+                    </button>
                 `;
+
+                const btnElim = card.querySelector('.option-eliminate-btn');
+                if (btnElim) {
+                    btnElim.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleEliminateOption(opt.letter);
+                    });
+                }
 
                 card.addEventListener('click', () => {
                     if (isSubmitted) return;
+                    if (card.classList.contains('eliminated')) {
+                        toggleEliminateOption(opt.letter, false);
+                    }
                     selectOption(opt.letter);
                 });
 
@@ -959,12 +1090,20 @@
     // --- Option Selection ---
     function selectOption(letter) {
         if (testSession.active && !testSession.isReviewMode) {
+            if (testSession.eliminated && testSession.eliminated[testSession.currentIndex]) {
+                const list = testSession.eliminated[testSession.currentIndex];
+                const pos = list.indexOf(letter);
+                if (pos !== -1) list.splice(pos, 1);
+            }
             testSession.answers[testSession.currentIndex] = letter;
             saveActiveTestSession();
             const allCards = optionsContainer.querySelectorAll('.option-card');
             allCards.forEach(card => {
                 if (card.dataset.letter === letter) {
                     card.classList.add('selected');
+                    card.classList.remove('eliminated');
+                    const btn = card.querySelector('.option-eliminate-btn');
+                    if (btn) btn.title = `Eliminate option ${letter}`;
                 } else {
                     card.classList.remove('selected');
                 }
@@ -973,11 +1112,17 @@
             return;
         }
 
+        if (drillEliminated.has(letter)) {
+            drillEliminated.delete(letter);
+        }
         selectedOption = letter;
         const allCards = optionsContainer.querySelectorAll('.option-card');
         allCards.forEach(card => {
             if (card.dataset.letter === letter) {
                 card.classList.add('selected');
+                card.classList.remove('eliminated');
+                const btn = card.querySelector('.option-eliminate-btn');
+                if (btn) btn.title = `Eliminate option ${letter}`;
             } else {
                 card.classList.remove('selected');
             }
@@ -1868,6 +2013,7 @@
                 currentIndex: testSession.currentIndex,
                 answers: testSession.answers,
                 flags: testSession.flags,
+                eliminated: testSession.eliminated || {},
                 startTime: testSession.startTime,
                 timeLimitSeconds: testSession.timeLimitSeconds,
                 timeRemaining: testSession.timeRemaining,
@@ -1960,6 +2106,7 @@
             currentIndex: typeof snapshot.currentIndex === 'number' ? snapshot.currentIndex : 0,
             answers: snapshot.answers || {},
             flags: snapshot.flags || {},
+            eliminated: snapshot.eliminated || {},
             startTime: snapshot.startTime || Date.now(),
             timeLimitSeconds: snapshot.timeLimitSeconds || 0,
             timeRemaining: timeRemaining,
@@ -2165,6 +2312,7 @@
                 currentIndex: 0,
                 answers: {},
                 flags: {},
+                eliminated: {},
                 startTime: Date.now(),
                 timeLimitSeconds: data.timeLimitSeconds || 0,
                 timeRemaining: data.timeLimitSeconds || 0,
@@ -2456,12 +2604,15 @@
             sprFeedback.classList.add('hidden');
             sprInput.value = testSession.answers[index] || '';
             sprInput.disabled = false;
+            setEliminatorToolAvailability(false);
         } else {
             sprContainer.classList.add('hidden');
             optionsContainer.classList.remove('hidden');
             optionsContainer.innerHTML = '';
+            setEliminatorToolAvailability(true);
 
             const currentAns = testSession.answers[index] || null;
+            const currentEliminated = (testSession.eliminated && testSession.eliminated[index]) ? testSession.eliminated[index] : [];
 
             (q.options || []).forEach(opt => {
                 const card = document.createElement('div');
@@ -2469,13 +2620,31 @@
                 if (currentAns === opt.letter) {
                     card.classList.add('selected');
                 }
+                const isEliminated = currentEliminated.includes(opt.letter);
+                if (isEliminated) {
+                    card.classList.add('eliminated');
+                }
                 card.dataset.letter = opt.letter;
                 card.innerHTML = `
                     <div class="option-letter">${opt.letter}</div>
                     <div class="option-body">${cleanQuestionHtml(opt.content)}</div>
+                    <button type="button" class="option-eliminate-btn" data-letter="${opt.letter}" title="${isEliminated ? 'Restore option ' + opt.letter : 'Eliminate option ' + opt.letter}" aria-label="Eliminate option ${opt.letter}">
+                        <span class="eliminate-cross">✕</span>
+                    </button>
                 `;
 
+                const btnElim = card.querySelector('.option-eliminate-btn');
+                if (btnElim) {
+                    btnElim.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleEliminateOption(opt.letter);
+                    });
+                }
+
                 card.addEventListener('click', () => {
+                    if (card.classList.contains('eliminated')) {
+                        toggleEliminateOption(opt.letter, false);
+                    }
                     selectOption(opt.letter);
                 });
 
@@ -2485,6 +2654,7 @@
     }
 
     function renderReviewQuestionContent(q, index) {
+        setEliminatorToolAvailability(false);
         const studentAns = testSession.answers[index] || '';
         const correctAnswers = q.correctAnswer || [];
         const primaryCorrect = correctAnswers[0] || '';
@@ -3030,6 +3200,10 @@
 
     if (btnTestFlag) btnTestFlag.addEventListener('click', toggleTestFlag);
     if (btnMobileTestFlag) btnMobileTestFlag.addEventListener('click', toggleTestFlag);
+    if (btnToggleEliminator) btnToggleEliminator.addEventListener('click', toggleOptionEliminatorTool);
+    if (btnTestEliminator) btnTestEliminator.addEventListener('click', toggleOptionEliminatorTool);
+    if (btnMobileEliminator) btnMobileEliminator.addEventListener('click', toggleOptionEliminatorTool);
+    if (btnMobileTestEliminator) btnMobileTestEliminator.addEventListener('click', toggleOptionEliminatorTool);
     if (btnTestTimerHide) btnTestTimerHide.addEventListener('click', toggleTestTimerVisibility);
     if (btnTestTimerPause) {
         btnTestTimerPause.addEventListener('click', () => {
@@ -3234,6 +3408,20 @@
                 return;
             }
 
+            // Option Eliminator toggle with 'E' or 'Alt+C'
+            if (key === 'E' || (e.altKey && key === 'C')) {
+                e.preventDefault();
+                toggleOptionEliminatorTool();
+                return;
+            }
+
+            // Shift + A/B/C/D to eliminate option
+            if (e.shiftKey && ['A', 'B', 'C', 'D'].includes(key) && currentQuestion?.type !== 'spr') {
+                e.preventDefault();
+                toggleEliminateOption(key);
+                return;
+            }
+
             if (['A', 'B', 'C', 'D'].includes(key) && currentQuestion?.type !== 'spr') {
                 selectOption(key);
                 return;
@@ -3276,6 +3464,20 @@
         }
 
         // Drill Mode Shortcuts
+        // Option Eliminator toggle with 'E' or 'Alt+C'
+        if ((key === 'E' || (e.altKey && key === 'C')) && !isInputActive) {
+            e.preventDefault();
+            toggleOptionEliminatorTool();
+            return;
+        }
+
+        // Shift + A/B/C/D to eliminate option
+        if (e.shiftKey && ['A', 'B', 'C', 'D'].includes(key) && !isSubmitted && currentQuestion?.type !== 'spr') {
+            e.preventDefault();
+            toggleEliminateOption(key);
+            return;
+        }
+
         if (['A', 'B', 'C', 'D'].includes(key) && !isSubmitted && currentQuestion?.type !== 'spr') {
             selectOption(key);
             return;
@@ -3343,6 +3545,7 @@
         startTimer();
         initDesmos();
         initRoughPad();
+        updateEliminatorUI();
 
         // Check for in-progress test session interrupted by back-swipe or reload
         let hasActiveSavedSession = false;
