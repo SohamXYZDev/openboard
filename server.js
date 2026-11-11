@@ -509,6 +509,92 @@ function sampleBalancedList(pool, count) {
     return shuffleArray(picked.slice(0, count));
 }
 
+// Canonical Digital SAT Ordering Specifications (College Board Assessment Framework)
+const RW_DOMAIN_ORDER = {
+    'CAS': 1, // Craft and Structure
+    'INI': 2, // Information and Ideas
+    'SEC': 3, // Standard English Conventions
+    'EOI': 4  // Expression of Ideas
+};
+
+const RW_SKILL_ORDER = {
+    'WIC': 1, // Words in Context
+    'TSP': 2, // Text Structure and Purpose
+    'CTC': 3, // Cross-Text Connections
+    'CID': 4, // Central Ideas and Details
+    'COE': 5, // Command of Evidence
+    'INF': 6, // Inferences
+    'BOU': 7, // Boundaries
+    'FSS': 8, // Form, Structure, and Sense
+    'TRA': 9, // Transitions
+    'SYN': 10 // Rhetorical Synthesis (Student notes)
+};
+
+const DIFF_WEIGHT = {
+    'E': 1,
+    'M': 2,
+    'H': 3
+};
+
+function getRwSkillRank(skillCode) {
+    if (!skillCode) return 99;
+    const s = String(skillCode).toUpperCase();
+    for (const [code, rank] of Object.entries(RW_SKILL_ORDER)) {
+        if (s.startsWith(code)) return rank;
+    }
+    return 99;
+}
+
+function sortOfficialSatList(list) {
+    return [...list].sort((a, b) => {
+        // 1. Section order: R&W (1) -> Math (2)
+        const secA = (a.section || a.subject) === 'rw' ? 1 : 2;
+        const secB = (b.section || b.subject) === 'rw' ? 1 : 2;
+        if (secA !== secB) return secA - secB;
+
+        // 2. Module order (e.g. Module 1 -> Module 2)
+        const modA = a.module || 1;
+        const modB = b.module || 1;
+        if (modA !== modB) return modA - modB;
+
+        // 3. Section-specific authentic Digital SAT ordering
+        if (secA === 1) {
+            // Reading & Writing: Domain -> Skill -> Difficulty (Ascending E -> M -> H)
+            const domA = RW_DOMAIN_ORDER[a.domainCode] || 99;
+            const domB = RW_DOMAIN_ORDER[b.domainCode] || 99;
+            if (domA !== domB) return domA - domB;
+
+            const skillA = getRwSkillRank(a.skillCode);
+            const skillB = getRwSkillRank(b.skillCode);
+            if (skillA !== skillB) return skillA - skillB;
+
+            const diffA = DIFF_WEIGHT[a.difficulty] || 2;
+            const diffB = DIFF_WEIGHT[b.difficulty] || 2;
+            return diffA - diffB;
+        } else {
+            // Math: MCQ first (Q1-17), then SPR (Q18-22).
+            // Within each format, progress Difficulty ascending (E -> M -> H) with domains interleaved
+            const typeA = String(a.type || 'mcq').toLowerCase() === 'spr' ? 2 : 1;
+            const typeB = String(b.type || 'mcq').toLowerCase() === 'spr' ? 2 : 1;
+            if (typeA !== typeB) return typeA - typeB;
+
+            const diffA = DIFF_WEIGHT[a.difficulty] || 2;
+            const diffB = DIFF_WEIGHT[b.difficulty] || 2;
+            return diffA - diffB;
+        }
+    });
+}
+
+function pickSkillBalanced(pool, domain, skillPrefix, targetCount) {
+    const matching = pool.filter(q => q.domainCode === domain && q.skillCode && q.skillCode.toUpperCase().startsWith(skillPrefix));
+    let picked = sampleBalancedList(matching, targetCount);
+    if (picked.length < targetCount) {
+        const remaining = pool.filter(q => q.domainCode === domain && !picked.some(p => p.external_id === q.external_id));
+        picked.push(...sampleBalancedList(remaining, targetCount - picked.length));
+    }
+    return picked;
+}
+
 async function hydrateQuestionMeta(meta) {
     if (!meta || !meta.external_id) return null;
     try {
@@ -564,7 +650,7 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
         let testSubject = 'rw';
         let allottedMinutes = 64;
 
-        // Helper to sample authentic 22-question Math module: 17 MCQ + 5 SPR with randomized difficulty
+        // Helper to sample authentic 22-question Math module: 17 MCQ + 5 SPR sorted Easy -> Medium -> Hard
         function sampleMathModule(sourcePool, modNum = 1, secPrefix = '') {
             const h_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'H' && q.type === 'mcq'), 5);
             const h_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'H' && q.type === 'spr'), 2);
@@ -574,37 +660,57 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             const q_spr = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'Q' && q.type === 'spr'), 1);
             const s_mcq = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'S' && q.type === 'mcq'), 4);
 
-            // Randomize questions so difficulty is unpredictable across the module
+            // Shuffle each list so topics are interleaved within difficulty tiers
             const mcqs = shuffleArray([...h_mcq, ...p_mcq, ...q_mcq, ...s_mcq]);
             const sprs = shuffleArray([...h_spr, ...p_spr, ...q_spr]);
 
             const label = secPrefix ? `${secPrefix} — Module ${modNum}` : `Module ${modNum}`;
-            return [...mcqs, ...sprs].map(q => ({
+            const tagged = [...mcqs, ...sprs].map(q => ({
                 ...q,
                 module: modNum,
                 moduleLabel: label,
                 section: 'math'
             }));
+
+            return sortOfficialSatList(tagged);
         }
 
-        // Helper to sample authentic 27-question R&W module: 7 CAS, 7 INI, 7 SEC, 6 EOI with randomized difficulty
+        // Helper to sample authentic 27-question R&W module matching College Board domain & skill distribution
+        // Craft & Structure (7): 4 WIC, 2 TSP, 1 CTC
+        // Information & Ideas (7): 2 CID, 3 COE, 2 INF
+        // Standard English Conventions (7): 4 BOU, 3 FSS
+        // Expression of Ideas (6): 3 TRA, 3 SYN
         function sampleRwModule(sourcePool, modNum = 1, secPrefix = '') {
-            const cas = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'CAS'), 7);
-            const ini = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'INI'), 7);
-            const sec = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'SEC'), 7);
-            const eoi = sampleBalancedList(sourcePool.filter(q => q.domainCode === 'EOI'), 6);
+            const used = new Set();
+            function pick(domain, skillPrefix, cnt) {
+                const rem = sourcePool.filter(q => !used.has(q.external_id));
+                const res = pickSkillBalanced(rem, domain, skillPrefix, cnt);
+                res.forEach(q => used.add(q.external_id));
+                return res;
+            }
 
-            // Reading items (CAS & INI) and Writing items (SEC & EOI) with randomized difficulty
-            const readingItems = shuffleArray([...cas, ...ini]);
-            const writingItems = shuffleArray([...sec, ...eoi]);
+            const items = [
+                ...pick('CAS', 'WIC', 4),
+                ...pick('CAS', 'TSP', 2),
+                ...pick('CAS', 'CTC', 1),
+                ...pick('INI', 'CID', 2),
+                ...pick('INI', 'COE', 3),
+                ...pick('INI', 'INF', 2),
+                ...pick('SEC', 'BOU', 4),
+                ...pick('SEC', 'FSS', 3),
+                ...pick('EOI', 'TRA', 3),
+                ...pick('EOI', 'SYN', 3)
+            ];
 
             const label = secPrefix ? `${secPrefix} — Module ${modNum}` : `Module ${modNum}`;
-            return [...readingItems, ...writingItems].map(q => ({
+            const tagged = items.map(q => ({
                 ...q,
                 module: modNum,
                 moduleLabel: label,
                 section: 'rw'
             }));
+
+            return sortOfficialSatList(tagged);
         }
 
         if (preset === 'rw_section') {
@@ -675,19 +781,40 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
                 const ini = sampleBalancedList(rwPool.filter(q => q.domainCode === 'INI'), 3);
                 const sec = sampleBalancedList(rwPool.filter(q => q.domainCode === 'SEC'), 2);
                 const eoi = sampleBalancedList(rwPool.filter(q => q.domainCode === 'EOI'), 2);
-                selectedMetas = shuffleArray([...cas, ...ini, ...sec, ...eoi]).map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
+                selectedMetas = sortOfficialSatList([...cas, ...ini, ...sec, ...eoi].map(q => ({
+                    ...q,
+                    module: 1,
+                    moduleLabel: 'Mini Diagnostic',
+                    section: 'rw'
+                })));
             } else if (requestedSubj === 'math') {
                 const mathPool = pool.filter(q => q.subject === 'math');
-                const mcqs = shuffleArray(sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 8));
-                const sprs = shuffleArray(sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 2));
-                selectedMetas = [...mcqs, ...sprs].map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
+                const mcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 8);
+                const sprs = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 2);
+                selectedMetas = sortOfficialSatList([...mcqs, ...sprs].map(q => ({
+                    ...q,
+                    module: 1,
+                    moduleLabel: 'Mini Diagnostic',
+                    section: 'math'
+                })));
             } else {
                 const rwPool = pool.filter(q => q.subject === 'rw');
                 const mathPool = pool.filter(q => q.subject === 'math');
-                const rwItems = sampleBalancedList(rwPool, 5);
+                const rwItems = sampleBalancedList(rwPool, 5).map(q => ({
+                    ...q,
+                    module: 1,
+                    moduleLabel: 'Mini Diagnostic (R&W)',
+                    section: 'rw'
+                }));
                 const mathMcqs = sampleBalancedList(mathPool.filter(q => q.type === 'mcq'), 4);
                 const mathSpr = sampleBalancedList(mathPool.filter(q => q.type === 'spr'), 1);
-                selectedMetas = shuffleArray([...rwItems, ...mathMcqs, ...mathSpr]).map(q => ({ ...q, module: 1, moduleLabel: 'Mini Test' }));
+                const mathItems = [...mathMcqs, ...mathSpr].map(q => ({
+                    ...q,
+                    module: 2,
+                    moduleLabel: 'Mini Diagnostic (Math)',
+                    section: 'math'
+                }));
+                selectedMetas = sortOfficialSatList([...rwItems, ...mathItems]);
             }
         } else {
             // Custom test
@@ -707,7 +834,79 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             const durationLabel = allottedMinutes > 0 ? `${allottedMinutes} min` : 'Untimed';
             title = `Custom SAT Practice Test (${targetCount} Questions • ${durationLabel})`;
 
-            selectedMetas = shuffleArray(sampleBalancedList(customPool, targetCount)).map(q => ({ ...q, module: 1, moduleLabel: 'Custom Set' }));
+            if (testSubject === 'rw') {
+                const picked = sampleBalancedList(customPool, targetCount);
+                selectedMetas = sortOfficialSatList(picked.map(q => ({
+                    ...q,
+                    module: 1,
+                    moduleLabel: 'Custom Set',
+                    section: 'rw'
+                })));
+            } else if (testSubject === 'math') {
+                const mcqPool = customPool.filter(q => q.type === 'mcq');
+                const sprPool = customPool.filter(q => q.type === 'spr');
+                let picked = [];
+                if (mcqPool.length > 0 && sprPool.length > 0) {
+                    const sprCount = Math.max(0, Math.round(targetCount * 0.22));
+                    const mcqCount = targetCount - sprCount;
+                    const pickedMcqs = sampleBalancedList(mcqPool, mcqCount);
+                    const pickedSprs = sampleBalancedList(sprPool, sprCount);
+                    picked = [...pickedMcqs, ...pickedSprs];
+                    if (picked.length < targetCount) {
+                        const pickedIds = new Set(picked.map(p => p.external_id));
+                        const rem = customPool.filter(q => !pickedIds.has(q.external_id));
+                        picked.push(...sampleBalancedList(rem, targetCount - picked.length));
+                    }
+                } else {
+                    picked = sampleBalancedList(customPool, targetCount);
+                }
+                selectedMetas = sortOfficialSatList(picked.map(q => ({
+                    ...q,
+                    module: 1,
+                    moduleLabel: 'Custom Set',
+                    section: 'math'
+                })));
+            } else {
+                // Mixed custom test: RW Section first, Math Section second
+                const rwPool = customPool.filter(q => q.subject === 'rw');
+                const mathPool = customPool.filter(q => q.subject === 'math');
+                const rwCount = Math.ceil(targetCount / 2);
+                const mathCount = targetCount - rwCount;
+
+                const rwPicked = sampleBalancedList(rwPool, rwCount).map(q => ({
+                    ...q,
+                    module: 1,
+                    moduleLabel: 'Custom Set (R&W)',
+                    section: 'rw'
+                }));
+
+                const mathMcqPool = mathPool.filter(q => q.type === 'mcq');
+                const mathSprPool = mathPool.filter(q => q.type === 'spr');
+                let mathPicked = [];
+                if (mathMcqPool.length > 0 && mathSprPool.length > 0) {
+                    const sprCount = Math.max(0, Math.round(mathCount * 0.22));
+                    const mcqCount = mathCount - sprCount;
+                    mathPicked = [
+                        ...sampleBalancedList(mathMcqPool, mcqCount),
+                        ...sampleBalancedList(mathSprPool, sprCount)
+                    ];
+                    if (mathPicked.length < mathCount) {
+                        const pickedIds = new Set(mathPicked.map(p => p.external_id));
+                        const rem = mathPool.filter(q => !pickedIds.has(q.external_id));
+                        mathPicked.push(...sampleBalancedList(rem, mathCount - mathPicked.length));
+                    }
+                } else {
+                    mathPicked = sampleBalancedList(mathPool, mathCount);
+                }
+                const mathTagged = mathPicked.map(q => ({
+                    ...q,
+                    module: 2,
+                    moduleLabel: 'Custom Set (Math)',
+                    section: 'math'
+                }));
+
+                selectedMetas = sortOfficialSatList([...rwPicked, ...mathTagged]);
+            }
         }
 
         // Hydrate questions in parallel
@@ -726,6 +925,9 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
                 if (h) questions.push(h);
             }
         }
+
+        // Strictly guarantee official Digital SAT ordering across all items and modules
+        questions = sortOfficialSatList(questions);
 
         // Assign 1-indexed numbers
         questions = questions.map((q, idx) => ({ ...q, index: idx + 1 }));
