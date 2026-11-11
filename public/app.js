@@ -1828,21 +1828,54 @@
         });
     }
 
-    // Export History
+    // Export History (Enriched with full question text, options, and rationales)
     if (btnExportHistory) {
-        btnExportHistory.addEventListener('click', () => {
+        btnExportHistory.addEventListener('click', async () => {
             if (history.length === 0) {
                 alert('No practice history to export yet.');
                 return;
             }
-            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(history, null, 2));
-            const downloadAnchor = document.createElement('a');
-            const dateStr = new Date().toISOString().slice(0, 10);
-            downloadAnchor.setAttribute('href', dataStr);
-            downloadAnchor.setAttribute('download', `openboard-sat-history-${dateStr}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+
+            const origText = btnExportHistory.textContent;
+            btnExportHistory.textContent = '⏳ Exporting...';
+            btnExportHistory.disabled = true;
+
+            try {
+                // Enrich history items with full question text, options, and rationales
+                const enrichedHistory = await Promise.all(history.map(async (item) => {
+                    try {
+                        const res = await fetch(`${API_BASE}/question/${encodeURIComponent(item.external_id)}`);
+                        if (res.ok) {
+                            const detail = await res.json();
+                            return {
+                                ...item,
+                                stimulus: detail.stimulus || null,
+                                stem: detail.stem || '',
+                                options: (detail.options || []).map(o => ({
+                                    letter: o.letter,
+                                    content: o.content
+                                })),
+                                rationale: detail.rationale || ''
+                            };
+                        }
+                    } catch (e) {}
+                    return item;
+                }));
+
+                const blob = new Blob([JSON.stringify(enrichedHistory, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const dateStr = new Date().toISOString().slice(0, 10);
+                a.href = url;
+                a.download = `openboard-sat-history-full-${dateStr}.json`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            } finally {
+                btnExportHistory.textContent = origText;
+                btnExportHistory.disabled = false;
+            }
         });
     }
 
@@ -2927,7 +2960,16 @@
                 userAnswer: studentAns,
                 correctAnswer: correctAnswers.join(', '),
                 isCorrect,
-                isUnanswered: !studentAns
+                isUnanswered: !studentAns,
+                // Full Question Details for Complete Export & Review
+                stimulus: q.stimulus || null,
+                stem: q.stem || '',
+                options: (q.options || []).map(opt => ({
+                    letter: opt.letter,
+                    id: opt.id,
+                    content: opt.content
+                })),
+                rationale: q.rationale || ''
             });
         });
 
@@ -2975,7 +3017,26 @@
         try {
             let saved = JSON.parse(localStorage.getItem('sat_practice_tests') || '[]');
             if (!Array.isArray(saved)) saved = [];
-            saved.unshift(resultsData);
+            // Save lightweight copy to localStorage to guard against browser storage quota limits
+            const storageCopy = {
+                ...resultsData,
+                questionResults: resultsData.questionResults.map(qr => ({
+                    index: qr.index,
+                    moduleLabel: qr.moduleLabel,
+                    external_id: qr.external_id,
+                    questionId: qr.questionId,
+                    subject: qr.subject,
+                    domainCode: qr.domainCode,
+                    domainDesc: qr.domainDesc,
+                    difficulty: qr.difficulty,
+                    type: qr.type,
+                    userAnswer: qr.userAnswer,
+                    correctAnswer: qr.correctAnswer,
+                    isCorrect: qr.isCorrect,
+                    isUnanswered: qr.isUnanswered
+                }))
+            };
+            saved.unshift(storageCopy);
             if (saved.length > 50) saved = saved.slice(0, 50);
             localStorage.setItem('sat_practice_tests', JSON.stringify(saved));
         } catch (e) {}
