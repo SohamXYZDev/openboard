@@ -699,9 +699,13 @@ app.get(['/api/test/generate', '/openboard/sat/api/test/generate', '/openboard/a
             if (difficulty && difficulty !== 'all') {
                 customPool = customPool.filter(q => q.difficulty === difficulty);
             }
-            const targetCount = Math.max(5, Math.min(100, parseInt(count) || 20));
-            allottedMinutes = parseInt(timeMinutes) || Math.round(targetCount * 1.5);
-            title = `Custom SAT Practice Test (${targetCount} Questions)`;
+            const targetCount = Math.max(1, Math.min(200, parseInt(count) || 20));
+            const parsedMinutes = parseInt(timeMinutes);
+            allottedMinutes = (!isNaN(parsedMinutes) && parsedMinutes >= 0)
+                ? parsedMinutes
+                : Math.round(targetCount * 1.5);
+            const durationLabel = allottedMinutes > 0 ? `${allottedMinutes} min` : 'Untimed';
+            title = `Custom SAT Practice Test (${targetCount} Questions • ${durationLabel})`;
 
             selectedMetas = shuffleArray(sampleBalancedList(customPool, targetCount)).map(q => ({ ...q, module: 1, moduleLabel: 'Custom Set' }));
         }

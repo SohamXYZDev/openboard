@@ -3011,6 +3011,99 @@ kbd {
     padding: 6px 8px;
     border-radius: 6px;
     outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.custom-field-full {
+    grid-column: 1 / -1;
+}
+
+.custom-field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-field-hint {
+    font-size: 10.5px;
+    color: var(--text-3);
+    font-weight: 500;
+}
+
+.custom-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.custom-input-row input {
+    width: 82px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 6px;
+    outline: none;
+    font-family: var(--mono, monospace);
+    transition: all 0.15s ease;
+}
+
+.custom-input-row input:focus,
+.custom-field select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.custom-quick-pills {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+}
+
+.quick-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.quick-pill:hover {
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border-2);
+}
+
+.quick-pill.active {
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+    color: var(--accent-2);
+    box-shadow: 0 0 8px var(--accent-subtle);
+}
+
+.custom-test-pacing-note {
+    font-size: 12px;
+    color: var(--text-2);
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    padding: 7px 12px;
+    border-radius: 6px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
 }
 
 /* ── Question Navigator Grid ── */

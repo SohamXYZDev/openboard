@@ -2291,7 +2291,7 @@
 
         let url = `${API_BASE}/test/generate?preset=${encodeURIComponent(preset)}`;
         if (options.subject) url += `&subject=${encodeURIComponent(options.subject)}`;
-        if (options.count) url += `&count=${encodeURIComponent(options.count)}`;
+        if (options.count !== undefined) url += `&count=${encodeURIComponent(options.count)}`;
         if (options.timeMinutes !== undefined) url += `&timeMinutes=${encodeURIComponent(options.timeMinutes)}`;
         if (options.difficulty) url += `&difficulty=${encodeURIComponent(options.difficulty)}`;
 
@@ -3156,6 +3156,85 @@
         });
     });
 
+    // Custom Test Controls (Any Questions & Any Minutes)
+    function initCustomTestControls() {
+        const countInput = document.getElementById('custom-test-count');
+        const timeInput = document.getElementById('custom-test-time');
+        const durationBadge = document.getElementById('custom-preset-duration-badge');
+        const pacingNote = document.getElementById('custom-test-pacing-note');
+        const countPills = document.querySelectorAll('#quick-count-pills .quick-pill');
+        const timePills = document.querySelectorAll('#quick-time-pills .quick-pill');
+
+        function updatePacing() {
+            const qCount = Math.max(1, parseInt(countInput?.value) || 20);
+            const rawTime = timeInput ? timeInput.value.trim() : '';
+            const mins = rawTime !== '' ? Math.max(0, parseInt(rawTime) || 0) : 30;
+
+            if (durationBadge) {
+                durationBadge.textContent = mins === 0 ? '⏱️ Untimed' : `⏱️ ${mins} min`;
+            }
+
+            if (pacingNote) {
+                if (mins === 0) {
+                    pacingNote.innerHTML = `⏱️ Pacing: <strong>Untimed</strong> (solve all ${qCount} questions without countdown clock)`;
+                } else {
+                    const totalSecs = mins * 60;
+                    const secPerQ = Math.round(totalSecs / qCount);
+                    const minPerQ = (mins / qCount).toFixed(1);
+                    pacingNote.innerHTML = `⏱️ Pacing: <strong>${minPerQ} min</strong> (${secPerQ}s) / question • ${qCount} Qs in ${mins}m`;
+                }
+            }
+
+            countPills.forEach(p => {
+                p.classList.toggle('active', parseInt(p.dataset.val) === parseInt(countInput?.value));
+            });
+            timePills.forEach(p => {
+                p.classList.toggle('active', parseInt(p.dataset.val) === mins);
+            });
+        }
+
+        if (countInput) {
+            countInput.addEventListener('input', updatePacing);
+            countInput.addEventListener('change', () => {
+                if (countInput.value && parseInt(countInput.value) < 1) countInput.value = 1;
+                if (countInput.value && parseInt(countInput.value) > 200) countInput.value = 200;
+                updatePacing();
+            });
+        }
+
+        if (timeInput) {
+            timeInput.addEventListener('input', updatePacing);
+            timeInput.addEventListener('change', () => {
+                if (timeInput.value && parseInt(timeInput.value) < 0) timeInput.value = 0;
+                updatePacing();
+            });
+        }
+
+        countPills.forEach(p => {
+            p.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (countInput) {
+                    countInput.value = p.dataset.val;
+                    updatePacing();
+                }
+            });
+        });
+
+        timePills.forEach(p => {
+            p.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (timeInput) {
+                    timeInput.value = p.dataset.val;
+                    updatePacing();
+                }
+            });
+        });
+
+        updatePacing();
+    }
+
+    initCustomTestControls();
+
     function launchSelectedPreset(preset) {
         if (!preset) return;
         if (preset === 'rw_section') {
@@ -3172,8 +3251,11 @@
             startPracticeTest('mini', { subject: miniSelectedSubj });
         } else if (preset === 'custom') {
             const s = document.getElementById('custom-test-subject')?.value || 'all';
-            const c = document.getElementById('custom-test-count')?.value || '20';
-            const t = document.getElementById('custom-test-time')?.value || '30';
+            const countInput = document.getElementById('custom-test-count');
+            const timeInput = document.getElementById('custom-test-time');
+            const c = countInput ? (parseInt(countInput.value) || 20) : 20;
+            const tRaw = timeInput ? timeInput.value.trim() : '30';
+            const t = tRaw !== '' ? Math.max(0, parseInt(tRaw) || 0) : 30;
             const d = document.getElementById('custom-test-diff')?.value || 'all';
             startPracticeTest('custom', { subject: s, count: c, timeMinutes: t, difficulty: d });
         }

@@ -100,7 +100,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
     <!-- Design System CSS -->
-    <link rel="stylesheet" href="style.css?v=9.6">
+    <link rel="stylesheet" href="style.css?v=9.7">
     <!-- MathJax for rendering math formulas and MathML -->
     <script>
         window.MathJax = {
@@ -918,7 +918,7 @@
                             <div class="test-preset-card custom-preset-card" data-preset="custom">
                                 <div class="preset-header">
                                     <span class="preset-badge" style="background: var(--surface-2); color: var(--text-2); border-color: var(--border-2);">Custom</span>
-                                    <span class="preset-duration">Flexible</span>
+                                    <span class="preset-duration" id="custom-preset-duration-badge">⏱️ 30 min</span>
                                 </div>
                                 <h4 class="preset-title">Custom Setup</h4>
                                 <div class="custom-fields-wrap">
@@ -931,27 +931,6 @@
                                         </select>
                                     </div>
                                     <div class="custom-field">
-                                        <label for="custom-test-count">Questions:</label>
-                                        <select id="custom-test-count">
-                                            <option value="10">10 Questions</option>
-                                            <option value="15">15 Questions</option>
-                                            <option value="20" selected>20 Questions</option>
-                                            <option value="27">27 Questions (1 Module)</option>
-                                            <option value="44">44 Questions (Math Section)</option>
-                                            <option value="54">54 Questions (R&amp;W Section)</option>
-                                        </select>
-                                    </div>
-                                    <div class="custom-field">
-                                        <label for="custom-test-time">Time Limit:</label>
-                                        <select id="custom-test-time">
-                                            <option value="15">15 Minutes</option>
-                                            <option value="30" selected>30 Minutes</option>
-                                            <option value="45">45 Minutes</option>
-                                            <option value="60">60 Minutes</option>
-                                            <option value="0">Untimed</option>
-                                        </select>
-                                    </div>
-                                    <div class="custom-field">
                                         <label for="custom-test-diff">Difficulty:</label>
                                         <select id="custom-test-diff">
                                             <option value="all" selected>All Difficulties</option>
@@ -960,6 +939,45 @@
                                             <option value="H">Hard Only</option>
                                         </select>
                                     </div>
+                                    <div class="custom-field custom-field-full">
+                                        <div class="custom-field-header">
+                                            <label for="custom-test-count">Questions:</label>
+                                            <span class="custom-field-hint">Any number (1–150)</span>
+                                        </div>
+                                        <div class="custom-input-row">
+                                            <input type="number" id="custom-test-count" min="1" max="150" value="20" placeholder="e.g. 20">
+                                            <div class="custom-quick-pills" id="quick-count-pills">
+                                                <button type="button" class="quick-pill" data-val="5">5</button>
+                                                <button type="button" class="quick-pill" data-val="10">10</button>
+                                                <button type="button" class="quick-pill" data-val="15">15</button>
+                                                <button type="button" class="quick-pill active" data-val="20">20</button>
+                                                <button type="button" class="quick-pill" data-val="27">27</button>
+                                                <button type="button" class="quick-pill" data-val="44">44</button>
+                                                <button type="button" class="quick-pill" data-val="54">54</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-field custom-field-full">
+                                        <div class="custom-field-header">
+                                            <label for="custom-test-time">Time Limit (Minutes):</label>
+                                            <span class="custom-field-hint">Any mins (0 = Untimed)</span>
+                                        </div>
+                                        <div class="custom-input-row">
+                                            <input type="number" id="custom-test-time" min="0" max="360" value="30" placeholder="0 = Untimed">
+                                            <div class="custom-quick-pills" id="quick-time-pills">
+                                                <button type="button" class="quick-pill" data-val="0">Untimed</button>
+                                                <button type="button" class="quick-pill" data-val="10">10m</button>
+                                                <button type="button" class="quick-pill" data-val="15">15m</button>
+                                                <button type="button" class="quick-pill" data-val="25">25m</button>
+                                                <button type="button" class="quick-pill active" data-val="30">30m</button>
+                                                <button type="button" class="quick-pill" data-val="45">45m</button>
+                                                <button type="button" class="quick-pill" data-val="60">60m</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="custom-test-pacing-note" id="custom-test-pacing-note">
+                                    ⏱️ Pacing: <strong>1.5 min</strong> (90s) / question
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-start-preset" data-preset="custom" style="margin-top: 10px;">
                                     Start Custom Test →
@@ -1234,6 +1252,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=9.6"></script>
+    <script src="app.js?v=9.7"></script>
 </body>
 </html>
